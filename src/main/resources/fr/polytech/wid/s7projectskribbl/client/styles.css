@@ -1,0 +1,25 @@
+.main-panel {
+    -fx-background-color: #f4f4f4;
+}
+.titre {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+.button {
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+.bouton-primaire {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-padding: 8px 15px;
+    -fx-border-radius: 4px;
+}
+.bouton-primaire:hover {
+    -fx-background-color: #0056b3;
+}
+#statusLabel {
+    -fx-font-style: italic;
+    -fx-text-fill: #6c757d;
+}
