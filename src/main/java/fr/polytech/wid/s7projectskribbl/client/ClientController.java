@@ -1,5 +1,6 @@
 package fr.polytech.wid.s7projectskribbl.client;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,7 +25,15 @@ public class ClientController {
 
         System.out.println("Message à envoyer : " + message);
         statusLabel.setText("Statut : Envoi de " + message + "...");
-
         messageField.clear();
+    }
+
+    private void DoSomethingFromJavaThread()
+    {
+        Platform.runLater(() ->
+            {
+                statusLabel.setText("Mise à jour du status.");
+            }
+        );
     }
 }
