@@ -6,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.io.IOException;
+import fr.polytech.wid.s7projectskribbl.common.*;
 
 public class ClientApplication extends Application {
 
@@ -16,7 +17,7 @@ public class ClientApplication extends Application {
         Scene scene = new Scene(root, 400, 300);
         String cssPath = getClass().getResource("styles.css").toExternalForm();
         scene.getStylesheets().add(cssPath);
-        primaryStage.setTitle("Client App - Communication Serveur");
+        primaryStage.setTitle(GameCommonMetadata.GameName);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
