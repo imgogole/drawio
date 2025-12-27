@@ -2,8 +2,10 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <VBox xmlns:fx="http://javafx.com/fxml/1"
+
+      fx:id="mainContainer"
+
       fx:controller="fr.polytech.wid.s7projectskribbl.client.ClientController"
       alignment="CENTER"
       spacing="15.0"
@@ -21,5 +23,7 @@
         styleClass="bouton-primaire"
         maxWidth="Infinity" />
 <Label fx:id="statusLabel" text="Statut : Prêt." />
+
+
 
 </VBox>

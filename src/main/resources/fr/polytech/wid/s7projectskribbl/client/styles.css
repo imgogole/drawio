@@ -1,25 +1,37 @@
 .main-panel {
-    -fx-background-color: #f4f4f4;
+    -fx-background-color: #262626;
 }
 .titre {
     -fx-font-size: 18px;
     -fx-font-weight: bold;
-    -fx-text-fill: #333333;
+    -fx-text-fill: #f6f8f7;
 }
 .button {
     -fx-font-size: 14px;
     -fx-cursor: hand;
 }
 .bouton-primaire {
-    -fx-background-color: #007bff;
-    -fx-text-fill: white;
+    -fx-background-color: #f0c50d;
+    -fx-text-fill: #543015;
     -fx-padding: 8px 15px;
     -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+
+    /* Evite le tremblement lors de l'animation de couleur */
+    -fx-background-insets: 0;
+    -fx-border-width: 0;
 }
-.bouton-primaire:hover {
-    -fx-background-color: #0056b3;
-}
+
+
 #statusLabel {
     -fx-font-style: italic;
-    -fx-text-fill: #6c757d;
+    -fx-text-fill: #887a5e;
 }
+
+#messageField {
+
+    -fx-background-color: #3e3e3e;
+    -fx-text-fill: #D3DAD9;
+
+}
+
