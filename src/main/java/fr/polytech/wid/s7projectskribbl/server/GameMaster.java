@@ -18,16 +18,37 @@ public class GameMaster
     private ServerSocket serverSocket;
     private int port;
 
+    private final ExternalLogger logger;
+    private final PromptDebugGameMaster promptDebugGameMaster;
+
     private ArrayList<PlayerHandler> clients;
 
     private WaitForPlayersHandler waitForPlayersHandler;
-    private Thread waitForPlayersThread;
 
     private int minimumPlayers;
 
-    public GameMaster(int port)
+    public GameMaster(int port, int loggerPort)
     {
         this.port = port;
+        this.logger = new ExternalLogger(loggerPort);
+        this.logger.start();
+        this.promptDebugGameMaster = new PromptDebugGameMaster(this);
+        this.promptDebugGameMaster.start();
+    }
+
+    public int Port()
+    {
+        return port;
+    }
+
+    public ExternalLogger Logger()
+    {
+        return logger;
+    }
+
+    public ArrayList<PlayerHandler> Clients()
+    {
+        return clients;
     }
 
     /**
@@ -46,14 +67,16 @@ public class GameMaster
         }
         catch (IOException e)
         {
-            System.err.println("Erreur: " + e.getMessage());
+            logger.LogLn("Erreur: " + e.getMessage());
         }
 
-        minimumPlayers = 2;
+        if (serverSocket != null)
+        {
+            minimumPlayers = 2;
 
-        waitForPlayersHandler = new WaitForPlayersHandler(serverSocket, this);
-        waitForPlayersThread = new Thread(waitForPlayersHandler);
-        waitForPlayersThread.start();
+            this.waitForPlayersHandler = new WaitForPlayersHandler(serverSocket, this);
+            this.waitForPlayersHandler.start();
+        }
 
         return ip;
     }
@@ -65,31 +88,73 @@ public class GameMaster
     public void Start() throws InterruptedException
     {
         ArrayList<PlayerHandler> clients = waitForPlayersHandler.Results();
-        if (clients.size() < minimumPlayers)
+        int playersAmount = clients.size();
+        if (playersAmount < minimumPlayers)
         {
-            System.out.printf("Erreur: Pas assez de joueurs pour commencer la partie. Minimum : %d%n", minimumPlayers);
+            logger.LogLn(String.format("Erreur: Pas assez de joueurs pour commencer la partie. Minimum : %d, Actuel : %d.", minimumPlayers, playersAmount));
             return;
         }
 
-        this.clients = new ArrayList<>(clients);
-        waitForPlayersHandler.Finish();
-        waitForPlayersThread.join();
+        this.clients = new ArrayList<PlayerHandler>(clients);
+        TerminateWaitForPlayers();
 
-        waitForPlayersHandler = null;
-        waitForPlayersThread = null;
-
-        System.out.println("La partie a débuté.");
+        logger.LogLn("La partie a débuté.");
     }
 
     /**
      * Préviens les joueurs connectés de la terminaison de la partie, les déconnecte et termine la partie.
      */
-    public void Terminate() throws IOException
+    public void Terminate() throws IOException, InterruptedException
     {
-        for (PlayerHandler player : this.clients)
-        {
-            player.TerminateConnection(TerminatedConnectionType.SERVER_LOGIC);
-        }
+        TerminateAllPlayers(TerminatedConnectionType.SERVER_LOGIC);
         serverSocket.close();
+        promptDebugGameMaster.Close();
+        CleanUp();
+
+        logger.LogLn("La partie a été fermée.");
+        logger.Close();
+    }
+
+    private void TerminateWaitForPlayers() throws InterruptedException
+    {
+        if (waitForPlayersHandler != null)
+        {
+            waitForPlayersHandler.Finish();
+            waitForPlayersHandler.join();
+        }
+
+        waitForPlayersHandler = null;
+    }
+
+    /**
+     * Termine la connexion avec tous les clients.
+     */
+    private void TerminateAllPlayers(TerminatedConnectionType type) throws InterruptedException
+    {
+        ArrayList<PlayerHandler> clientsToDisconnect = (this.clients != null) ? this.clients : waitForPlayersHandler.Results();
+
+        if (clientsToDisconnect != null)
+        {
+            for (PlayerHandler player : clientsToDisconnect)
+            {
+                player.TerminateConnection(type);
+            }
+            logger.LogLn("La connexion avec tous les joueurs est terminée.");
+        }
+    }
+
+    /**
+     * Arrête tous the threads en cours d'exécution.
+     */
+    private void CleanUp()
+    {
+        try
+        {
+            TerminateWaitForPlayers();
+        }
+        catch (InterruptedException e)
+        {
+            logger.LogLn("Erreur lors du CleanUp: " + e.getMessage());
+        }
     }
 }
