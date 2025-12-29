@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.shape.Circle?>
+<StackPane xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="fr.polytech.wid.s7projectskribbl.client.controller.GameController"
+           styleClass="main-panel">
+
+    <VBox fx:id="mainContainer"
+          alignment="CENTER"
+          spacing="20.0"
+          styleClass="main-panel">
+
+        <padding>
+            <Insets bottom="20.0" left="32.0" right="32.0" top="20.0" />
+        </padding>
+
+        <VBox alignment="CENTER" spacing="-5.0">
+            <Label text="DRAW THE WORD :" styleClass="titre"/>
+            <Label text="CAT" fx:id="mysteryWord"/>
+        </VBox>
+
+        <HBox alignment="CENTER" spacing="22.0">
+
+            <VBox spacing="5.0"> <HBox alignment="BASELINE_LEFT" spacing="-5.0">
+                <Label text="Time left :  " styleClass="grayText"/>
+                <Label text="0:42" fx:id="timer" styleClass="orangeText"/>
+            </HBox>
+
+                <StackPane fx:id="canvasContainer" >
+
+
+                    <StackPane >
+                        <Canvas fx:id="drawingCanvas" height="690" width="1100"/>
+                    </StackPane>
+
+                    <VBox alignment="CENTER_RIGHT" spacing="90.0">
+
+                        <padding>
+                            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                        </padding>
+
+                        <Button styleClass="tool-button">
+                            <graphic>
+                                <SVGPath content="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+                                         fill="#543015" scaleX="1.2" scaleY="1.2"/>
+                            </graphic>
+                            <tooltip><Tooltip text="Brush"/></tooltip>
+                        </Button>
+
+                        <Button styleClass="tool-button">
+                            <graphic>
+                                <Group scaleX="0.8" scaleY="0.8">
+                                    <SVGPath content="M 4 14 L 14 4 L 20 10 L 10 20 Z"
+                                             fill="#555555" stroke="BLACK" strokeWidth="1"/>
+
+                                    <SVGPath content="M 9 9 L 15 15"
+                                             stroke="WHITE" strokeWidth="2" strokeLineCap="ROUND"/>
+                                </Group>
+                            </graphic>
+                            <tooltip><Tooltip text="Eraser"/></tooltip>
+                        </Button>
+
+                        <MenuButton fx:id="menuTaille" styleClass="tool-button, size-menu-button" popupSide="LEFT">
+                            <graphic>
+                                <Circle fx:id="circleTailleIcone" radius="8" fill="#543015"/>
+                            </graphic>
+                            <tooltip><Tooltip text="Size"/></tooltip>
+
+                            <items>
+                                <CustomMenuItem hideOnClick="false">
+                                    <content>
+                                        <Slider fx:id="sliderTaille" orientation="VERTICAL"
+                                                min="2" max="50" value="5"
+                                                prefHeight="150" showTickMarks="true"/>
+                                    </content>
+                                </CustomMenuItem>
+                            </items>
+                        </MenuButton>
+
+                        <ColorPicker fx:id="colorPicker" styleClass="tool-button" style="-fx-color-label-visible: false; -fx-display-caret: false;">
+                            <tooltip><Tooltip text="Color Picker"/></tooltip>
+                        </ColorPicker>
+
+                        <Button styleClass="tool-button" >
+                            <graphic>
+                                <SVGPath content="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                                         fill="#543015" scaleX="1.2" scaleY="1.2"/>
+                            </graphic>
+                            <tooltip><Tooltip text="Erase everything"/></tooltip>
+                        </Button>
+
+
+
+                    </VBox>
+
+
+
+                </StackPane>
+
+
+            </VBox>
+
+
+
+
+
+            <VBox spacing="5.0" >
+
+                <HBox alignment="BASELINE_LEFT">
+                    <Label text="ROUND " styleClass="grayText" />
+                    <Label text="1/5 " fx:id="roundNumber" styleClass="grayText"/>
+                </HBox>
+
+
+
+                <VBox fx:id="chat" spacing="15.0">
+
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+
+                    <ScrollPane fx:id="scrollPaneMessages"
+                                VBox.vgrow="ALWAYS"
+                                fitToWidth="true"
+                                hbarPolicy="NEVER"
+                                styleClass="chat-scroll-pane">
+
+                        <VBox fx:id="messagesContainer" spacing="5" style="-fx-background-color: transparent;">
+
+                            <HBox>
+                                <Label styleClass="chatUser" text="oxfrz: "/>
+                                <Label styleClass="chatText" text="Come on man, that's too easy !"/>
+                            </HBox>
+
+                            <HBox>
+                                <Label styleClass="chatUser" text="oxfrz: "/>
+                                <Label styleClass="chatText" text="Come on man, that's too easy !"/>
+                            </HBox>
+
+                            <HBox>
+                                <Label styleClass="chatUser" text="oxfrz: "/>
+                                <Label styleClass="chatText" text="Come on man, that's too easy !"/>
+                            </HBox>
+
+
+
+
+                        </VBox>
+
+
+                    </ScrollPane>
+
+                    <HBox alignment="CENTER" spacing="0"> <TextField promptText="Try an answer.." fx:id="chatInput"/>
+                        <Button text="CHAT" fx:id="sendChat" />
+                    </HBox>
+
+                </VBox>
+
+            </VBox>
+
+        </HBox>
+
+        <HBox spacing="20.0" alignment="CENTER">
+
+
+
+            <VBox styleClass="userBox" alignment="CENTER" >
+
+                <padding>
+                    <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                </padding>
+
+
+                <Label styleClass="orangeText" text="Dada"/>
+                <Label styleClass="grayText" text="last_answer"/>
+                <HBox alignment="BASELINE_LEFT">
+                    <Label styleClass="grayText" fx:id="pointsDada" text="300"/>
+                    <Label styleClass="grayText" text="pts"/>
+                </HBox>
+
+            </VBox>
+
+            <VBox styleClass="userBox" alignment="CENTER" >
+
+                <padding>
+                    <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                </padding>
+
+                <Label styleClass="orangeText" text="Bruce M Wayne"/>
+                <Label styleClass="grayText" text="last_answer"/>
+                <HBox alignment="BASELINE_LEFT">
+                    <Label styleClass="grayText" fx:id="pointsWayne" text="300"/>
+                    <Label styleClass="grayText" text="pts"/>
+                </HBox>
+
+            </VBox>
+
+
+
+
+
+        </HBox>
+    </VBox>
+
+
+</StackPane>
