@@ -25,6 +25,7 @@ tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
 
+
 application {
     mainModule.set("fr.polytech.wid.s7projectskribbl")
     mainClass.set("fr.polytech.wid.s7projectskribbl.client.ClientApplication")
@@ -50,4 +51,12 @@ jlink {
     launcher {
         name = "app"
     }
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
+
+tasks.withType<JavaExec> {
+    jvmArgs("-Dfile.encoding=UTF-8")
 }
