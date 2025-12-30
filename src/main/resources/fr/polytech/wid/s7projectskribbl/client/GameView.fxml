@@ -39,13 +39,13 @@
                         <Canvas fx:id="drawingCanvas" height="690" width="1100"/>
                     </StackPane>
 
-                    <VBox alignment="CENTER_RIGHT" spacing="90.0">
+                    <VBox alignment="CENTER_RIGHT" spacing="90.0" fx:id="toolbox">
 
                         <padding>
                             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                         </padding>
 
-                        <Button styleClass="tool-button">
+                        <Button styleClass="tool-button" fx:id="btnBrush">
                             <graphic>
                                 <SVGPath content="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
                                          fill="#543015" scaleX="1.2" scaleY="1.2"/>
@@ -53,7 +53,7 @@
                             <tooltip><Tooltip text="Brush"/></tooltip>
                         </Button>
 
-                        <Button styleClass="tool-button">
+                        <Button styleClass="tool-button" fx:id="btnEraser">
                             <graphic>
                                 <Group scaleX="0.8" scaleY="0.8">
                                     <SVGPath content="M 4 14 L 14 4 L 20 10 L 10 20 Z"
@@ -87,7 +87,7 @@
                             <tooltip><Tooltip text="Color Picker"/></tooltip>
                         </ColorPicker>
 
-                        <Button styleClass="tool-button" >
+                        <Button styleClass="tool-button" fx:id="btnClear" >
                             <graphic>
                                 <SVGPath content="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
                                          fill="#543015" scaleX="1.2" scaleY="1.2"/>
@@ -96,6 +96,25 @@
                         </Button>
 
 
+
+                    </VBox>
+
+
+
+                    <VBox fx:id="overlayEndRound"
+                          alignment="CENTER"
+                          spacing="10"
+                          visible="false"
+                          maxWidth="400" maxHeight="200"
+                          styleClass="overlay-panel">
+
+                        <Label fx:id="endRoundTitle" text="Le mot était :" styleClass="overlay-title"/>
+                        <Label fx:id="endRoundWord" text="MOT_MYSTERE" styleClass="overlay-word"/>
+
+                        <HBox fx:id="endGameButtons" spacing="20" alignment="CENTER" visible="false" managed="false">
+                            <Button fx:id="btnReplay" text="Relancer" style="-fx-base: #f0c50d; -fx-text-fill: #543015; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                            <Button fx:id="btnEndQuit" text="Quitter" style="-fx-base: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                        </HBox>
 
                     </VBox>
 
@@ -114,7 +133,9 @@
 
                 <HBox alignment="BASELINE_LEFT">
                     <Label text="ROUND " styleClass="grayText" />
-                    <Label text="1/5 " fx:id="roundNumber" styleClass="grayText"/>
+                    <Label text="1" fx:id="currentRound" styleClass="grayText"/>
+                    <Label text="/" styleClass="grayText"/>
+                    <Label text="5" fx:id="roundNumber" styleClass="grayText"/>
                 </HBox>
 
 
@@ -207,6 +228,21 @@
 
         </HBox>
     </VBox>
+
+
+    <Button StackPane.alignment="TOP_RIGHT" fx:id="btnQuit">
+
+        <StackPane.margin>
+            <Insets top="20.0" right="32.0" />
+        </StackPane.margin>
+
+        <graphic>
+            <SVGPath content="M 14 4 L 6 4 L 6 20 L 14 20 M 10 12 L 21 12 M 17 8 L 21 12 L 17 16"
+                     styleClass="quit-icon" />
+        </graphic>
+
+    </Button>
+
 
 
 </StackPane>

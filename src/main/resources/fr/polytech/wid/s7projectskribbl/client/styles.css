@@ -136,14 +136,6 @@
     -fx-cursor: hand;
 }
 
-.tool-button:hover {
-    -fx-background-color: #e59700;
-}
-
-.tool-button:pressed {
-    -fx-background-color: #c48000;
-}
-
 
 .color-picker.tool-button {
     -fx-background-radius: 50%;
@@ -230,4 +222,54 @@
 .slider .axis {
     -fx-tick-label-fill: #D3DAD9;
     -fx-tick-mark-stroke: #D3DAD9;
+}
+
+#btnQuit {
+
+    -fx-pref-height: 50px;
+    -fx-pref-width: 50px;
+    -fx-background-color: transparent;
+}
+
+/* Style de l'icône SVG */
+#btnQuit .quit-icon {
+    /* rend l'intérieur transparent */
+    -fx-fill: transparent;
+
+    /* définit la couleur des contours */
+    -fx-stroke: #7f8c8d;
+
+    -fx-scale-x: 1.5;
+    -fx-scale-y: 1.5;
+
+    -fx-stroke-width: 2px;
+
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}
+
+
+
+/* LE PANNEAU POPUP */
+.overlay-panel {
+    -fx-background-color: rgba(38, 38, 38, 0.95);
+    -fx-background-radius: 20px;
+    -fx-border-color: #f0c50d;
+    -fx-border-width: 3px;
+    -fx-border-radius: 17px;
+    -fx-padding: 20px;
+}
+
+/* LE TITRE */
+.overlay-title {
+    -fx-font-size: 20px;
+    -fx-text-fill: #D3DAD9;
+    -fx-font-weight: bold;
+}
+
+/* LE MOT */
+.overlay-word {
+    -fx-font-size: 40px;
+    -fx-text-fill: #f0c50d;
+    -fx-font-weight: bold;
 }
