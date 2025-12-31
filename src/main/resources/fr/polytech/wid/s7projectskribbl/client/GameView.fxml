@@ -108,12 +108,12 @@
                           maxWidth="400" maxHeight="200"
                           styleClass="overlay-panel">
 
-                        <Label fx:id="endRoundTitle" text="Le mot était :" styleClass="overlay-title"/>
-                        <Label fx:id="endRoundWord" text="MOT_MYSTERE" styleClass="overlay-word"/>
+                        <Label fx:id="endRoundTitle" text="The word was :" styleClass="overlay-title"/>
+                        <Label fx:id="endRoundWord" text="MYSTERYWORD" styleClass="overlay-word"/>
 
                         <HBox fx:id="endGameButtons" spacing="20" alignment="CENTER" visible="false" managed="false">
-                            <Button fx:id="btnReplay" text="Relancer" style="-fx-base: #f0c50d; -fx-text-fill: #543015; -fx-font-weight: bold; -fx-cursor: hand;"/>
-                            <Button fx:id="btnEndQuit" text="Quitter" style="-fx-base: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                            <Button fx:id="btnReplay" text="Play Again" style="-fx-base: #f0c50d; -fx-text-fill: #543015; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                            <Button fx:id="btnEndQuit" text="Quit" style="-fx-base: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
                         </HBox>
 
                     </VBox>

@@ -76,7 +76,7 @@ public class GameController {
     private boolean isEraserActive = false;
 
     // VARIABLE DE GESTION DU RÔLE
-    private boolean isDrawer = false;
+    private boolean isDrawer = true;
 
     // ON STOCKE LE MOT MYSTERE
     private String WORD;
@@ -134,7 +134,7 @@ public class GameController {
             // --- SIMULATION POUR LE TEST ---
 
             // On simule que c'est le round 5 sur 5 (FIN DE PARTIE)
-            int roundActuel = 5;
+            int roundActuel = 4;
             int roundTotal = 5;
 
             // Mise à jour des labels (pour l'affichage)
@@ -144,7 +144,7 @@ public class GameController {
 
             // CAS DESSINATEUR
             updateGameState(isDrawer, WORD);
-            showRoundEnd(isDrawer, WORD, roundActuel, roundTotal);
+            showRoundEnd(isDrawer, WORD, roundActuel, roundTotal, true);    //test quand tt le monde trouve
 
         });
     }
@@ -376,15 +376,15 @@ public class GameController {
 
 
     // Affiche le pop up en fin de round
-    public void showRoundEnd(boolean amIdrawing, String realWord, int currentR, int totalR)
+    public void showRoundEnd(boolean amIdrawing, String realWord, int currentR, int totalR, boolean everyoneFound)
     {
 
         boolean isGameOver = (currentR >= totalR);
 
         // Cas de fin de partie
         if (isGameOver) {
-            endRoundTitle.setText("PARTIE TERMINÉE !");
-            endRoundWord.setText("Le vainqueur est...");
+            endRoundTitle.setText("GAME FINISHED !");
+            endRoundWord.setText("The Winner is ...");
             endRoundWord.setVisible(true);
             endRoundWord.setManaged(true);
 
@@ -396,7 +396,25 @@ public class GameController {
 
         }
 
-        // Cas de fin de round (pas la fin du jeu)
+        // Cas où tout le monde trouve
+        else if (everyoneFound)
+        {
+            if(endGameButtons != null)
+            {
+                endGameButtons.setVisible(false);
+                endGameButtons.setManaged(false);
+            }
+
+            endRoundTitle.setText("Everyone found the word !");
+            endRoundWord.setText("Perfect !");
+
+            // On affiche ce message pour tout le monde
+            endRoundWord.setVisible(true);
+            endRoundWord.setManaged(true);
+        }
+
+
+        // Cas de temps écoulé (pas le dernier round)
         else {
 
             // Cache les boutons
@@ -406,11 +424,11 @@ public class GameController {
             }
 
             if (amIdrawing) {
-                endRoundTitle.setText("Temps écoulé !");
+                endRoundTitle.setText("Time is up !");
                 endRoundWord.setVisible(false);
                 endRoundWord.setManaged(false);
             } else {
-                endRoundTitle.setText("Le mot était :");
+                endRoundTitle.setText("The word was :");
                 endRoundWord.setText(realWord.toUpperCase());
                 endRoundWord.setVisible(true);
                 endRoundWord.setManaged(true);
