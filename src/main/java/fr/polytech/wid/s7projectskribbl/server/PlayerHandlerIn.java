@@ -1,18 +1,21 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
-import java.io.BufferedReader;
+import fr.polytech.wid.s7projectskribbl.common.TerminatedConnectionType;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.net.Socket;
+import java.nio.*;
 
 /**
  * Classe pour recevoir des commandes et des informations au client.
  */
 public class PlayerHandlerIn extends Thread
 {
-    private final BufferedReader in;
+    private final InputStream in;
     private final PlayerHandler handler;
     private final Socket clientSocket;
+    private volatile boolean running;
 
     private String username;
 
@@ -20,10 +23,11 @@ public class PlayerHandlerIn extends Thread
     {
         this.clientSocket = clientSocket;
         this.handler = handler;
-        this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        this.in = clientSocket.getInputStream();
+        this.running = true;
     }
 
-    public BufferedReader In()
+    public InputStream In()
     {
         return this.in;
     }
@@ -32,20 +36,40 @@ public class PlayerHandlerIn extends Thread
     {
         try
         {
-            String message;
-            while (in != null && (message = in.readLine()) != null)
+            while (running && !clientSocket.isClosed())
             {
-                handler.Master().Logger().LogLn("Message de username: " + message);
+                int code = in.read();
+
+                if (code == -1)
+                {
+                    running = false;
+                    handler.TerminateConnection(TerminatedConnectionType.CLIENT_LOGIC);
+                    break;
+                }
+
+                byte[] sizeBuf = in.readNBytes(4);
+                if (sizeBuf.length < 4) break;
+
+                int length = ByteBuffer.wrap(sizeBuf).order(ByteOrder.BIG_ENDIAN).getInt();
+
+                byte[] payload = in.readNBytes(length);
+                if (payload.length < length) break;
+
+                handler.Master().CommandHandler().QueueIncomeCommand(this.handler, code, payload);
             }
         }
         catch (IOException e)
         {
-            handler.Master().Logger().LogLn("Erreur: " + e.getMessage());
+            if (running)
+            {
+                handler.Master().Logger().LogLn("Connexion interrompue pour " + handler.IP() + " : " + e.getMessage());
+            }
         }
     }
 
     public void Close()
     {
+        this.running = false;
         try
         {
             if (this.in != null)

@@ -1,4 +1,4 @@
-package fr.polytech.wid.s7projectskribbl.server;
+package fr.polytech.wid.s7projectskribbl.common;
 
 public enum TerminatedConnectionType
 {

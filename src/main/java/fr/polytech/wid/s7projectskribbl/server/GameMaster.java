@@ -1,7 +1,10 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
+import fr.polytech.wid.s7projectskribbl.common.TerminatedConnectionType;
+
 import java.io.*;
 import java.net.*;
+import java.time.Instant;
 import java.util.ArrayList;
 
 /**
@@ -15,11 +18,15 @@ import java.util.ArrayList;
  */
 public class GameMaster
 {
+    private final long timestamp;
+
     private ServerSocket serverSocket;
     private int port;
 
     private final ExternalLogger logger;
     private final PromptDebugGameMaster promptDebugGameMaster;
+
+    private final GameCommandHandler gameCommandHandler;
 
     private ArrayList<PlayerHandler> clients;
 
@@ -29,11 +36,21 @@ public class GameMaster
 
     public GameMaster(int port, int loggerPort)
     {
+        this.timestamp = Instant.now().getEpochSecond();
         this.port = port;
         this.logger = new ExternalLogger(loggerPort);
         this.logger.start();
         this.promptDebugGameMaster = new PromptDebugGameMaster(this);
         this.promptDebugGameMaster.start();
+        this.gameCommandHandler = new GameCommandHandler(this);
+    }
+
+    /**
+     * Le timestamp à laquelle la partie a été créée.
+     */
+    public long StartedTime()
+    {
+        return this.timestamp;
     }
 
     public int Port()
@@ -49,6 +66,11 @@ public class GameMaster
     public ArrayList<PlayerHandler> Clients()
     {
         return clients;
+    }
+
+    public GameCommandHandler CommandHandler()
+    {
+        return gameCommandHandler;
     }
 
     /**
