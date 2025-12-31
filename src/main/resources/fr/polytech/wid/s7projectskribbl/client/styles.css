@@ -24,6 +24,12 @@
 
 }
 
+.whiteText{
+    -fx-font-size: 25px;
+    -fx-text-fill: #D3DAD9;
+    -fx-font-weight: bold;
+}
+
 .chatUser{
     -fx-font-size: 18px;
     -fx-text-fill: #E59700;
@@ -272,4 +278,62 @@
     -fx-font-size: 40px;
     -fx-text-fill: #f0c50d;
     -fx-font-weight: bold;
+}
+
+
+
+
+/*   -----------------------  WAITING ROOM CSS  --------------------------  */
+
+
+.readyButton{
+    -fx-background-color: #f0c50d;
+    -fx-text-fill: #543015;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+}
+
+.readyButton:hover {
+    -fx-background-color: #e59700;
+}
+
+.cancelButton {
+    -fx-background-color: #595959;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+}
+.cancelButton:hover {
+    -fx-background-color: #454545;
+}
+
+/* Ligne d'un joueur dans la liste */
+.player-row {
+    -fx-background-color: #262626;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px;
+}
+
+.player-name {
+    -fx-text-fill: #D3DAD9;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+/* Indicateur de statut (Texte) */
+.status-ready {
+    -fx-text-fill: #C4D70C;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+}
+
+.status-waiting {
+    -fx-text-fill: #595959;
+    -fx-font-style: italic;
+    -fx-font-size: 18px;
+
 }

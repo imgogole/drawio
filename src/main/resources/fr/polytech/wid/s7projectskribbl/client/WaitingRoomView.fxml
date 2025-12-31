@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
+
+
+<StackPane xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="fr.polytech.wid.s7projectskribbl.client.controller.WaitingRoomController"
+           styleClass="main-panel">
+
+    <VBox fx:id="mainContainer"
+          alignment="CENTER"
+          spacing="30.0"
+          styleClass="main-panel"
+          >
+
+        <padding>
+            <Insets bottom="20.0" left="32.0" right="32.0" top="20.0" />
+        </padding>
+
+        <VBox alignment="CENTER" spacing="-5.0">
+            <Label text="Waiting Room" styleClass="titre"/>
+
+            <HBox alignment="CENTER">
+                <Label text="4" styleClass="orangeText" fx:id="readyPlayers"/>
+                <Label text="/" styleClass="orangeText" />
+                <Label text="5" styleClass="orangeText" fx:id="playerNumber"/>
+                <Label text=" Players Ready" styleClass="whiteText"/>
+            </HBox>
+
+        </VBox>
+
+
+        <VBox style="-fx-background-radius: 15px; -fx-padding: 20;">
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="chat-scroll-pane" prefHeight="300">
+
+                <FlowPane fx:id="playerListContainer"
+                          hgap="15"
+                          vgap="15"
+                          alignment="CENTER"
+                          style="-fx-background-color: transparent;">
+                </FlowPane>
+
+            </ScrollPane>
+        </VBox>
+
+        <Button fx:id="btnReadyState" text="READY"
+                prefWidth="344" prefHeight="79"
+                styleClass="readyButton"/>
+
+
+
+
+    </VBox>
+
+
+
+    <Button StackPane.alignment="TOP_RIGHT" fx:id="btnQuit">
+
+        <StackPane.margin>
+            <Insets top="20.0" right="32.0" />
+        </StackPane.margin>
+
+        <graphic>
+            <SVGPath content="M 14 4 L 6 4 L 6 20 L 14 20 M 10 12 L 21 12 M 17 8 L 21 12 L 17 16"
+                     styleClass="quit-icon" />
+        </graphic>
+
+    </Button>
+
+
+</StackPane>
