@@ -1,11 +1,11 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
+import fr.polytech.wid.s7projectskribbl.common.TerminatedConnectionType;
+
 import java.io.*;
 import java.net.*;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
 
 /**
  * Instance d'une partie de jeu côté serveur.

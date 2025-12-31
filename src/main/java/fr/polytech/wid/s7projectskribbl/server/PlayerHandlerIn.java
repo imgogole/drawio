@@ -1,5 +1,7 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
+import fr.polytech.wid.s7projectskribbl.common.TerminatedConnectionType;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;

@@ -1,9 +1,8 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
-import java.io.BufferedReader;
+import fr.polytech.wid.s7projectskribbl.common.TerminatedConnectionType;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 
 /**
