@@ -48,8 +48,17 @@ public class PlayerHandlerIn extends Thread
 
                 int length = ByteBuffer.wrap(sizeBuf).order(ByteOrder.BIG_ENDIAN).getInt();
 
-                byte[] payload = in.readNBytes(length);
-                if (payload.length < length) break;
+                byte[] payload;
+
+                if (length > 0)
+                {
+                    payload = in.readNBytes(length);
+                    if (payload.length < length) break;
+                }
+                else
+                {
+                    payload = new byte[0];
+                }
 
                 handler.Master().CommandHandler().QueueIncomeCommand(this.handler, code, payload);
             }

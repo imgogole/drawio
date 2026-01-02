@@ -1,4 +1,4 @@
-package fr.polytech.wid.s7projectskribbl.server;
+package fr.polytech.wid.s7projectskribbl.client.network;
 
 import fr.polytech.wid.s7projectskribbl.common.payloads.Payload;
 
@@ -7,20 +7,17 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 
-/**
- * Classe pour envoyer des commandes et des informations au client.
- */
-public class PlayerHandlerOut
+public class ClientHandlerOut
 {
     private final OutputStream out;
-    private final PlayerHandler handler;
+    private final ClientHandler handler;
     private final Socket clientSocket;
 
-    public PlayerHandlerOut(Socket clientSocket, PlayerHandler handler) throws IOException
+    public ClientHandlerOut(ClientHandler handler, Socket clientSocket) throws IOException
     {
-        this.clientSocket = clientSocket;
-        this.handler = handler;
         this.out = clientSocket.getOutputStream();
+        this.handler = handler;
+        this.clientSocket = clientSocket;
     }
 
     public OutputStream Out()

@@ -1,6 +1,9 @@
 package fr.polytech.wid.s7projectskribbl.client.network;
 
-import fr.polytech.wid.s7projectskribbl.common.CommandAction;
+import fr.polytech.wid.s7projectskribbl.client.actions.CPingAction;
+import fr.polytech.wid.s7projectskribbl.client.actions.ClientAction;
+import fr.polytech.wid.s7projectskribbl.common.*;
+import fr.polytech.wid.s7projectskribbl.server.actions.ServerAction;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,13 +21,14 @@ public class ClientHandler extends Thread
 {
     private Socket clientSocket;
     private ClientHandlerIn inHandler;
+    private ClientHandlerOut outHandler;
     private static ClientHandler instance;
 
-    private final Map<Integer, CommandAction> codeToCommand;
+    private final Map<Integer, ClientAction> codeToAction;
     private final Queue<ClientCommandRecord> incomeCommandQueue;
 
     private volatile boolean connected = false;
-    private volatile boolean running = true;
+    private volatile boolean running;
 
     public static ClientHandler Singleton()
     {
@@ -39,10 +43,20 @@ public class ClientHandler extends Thread
     public ClientHandler()
     {
         this.incomeCommandQueue = new ConcurrentLinkedQueue<>();
-        this.codeToCommand = new HashMap<>();
+        this.codeToAction = new HashMap<>();
         this.running = true;
 
-        this.codeToCommand.put(fr.polytech.wid.s7projectskribbl.common.GameCommonMetadata.PING_CODE, null);
+        this.codeToAction.put(GameCommonMetadata.PING_CODE, new CPingAction());
+    }
+
+    public ClientHandlerIn In()
+    {
+        return inHandler;
+    }
+
+    public ClientHandlerOut Out()
+    {
+        return outHandler;
     }
 
     public void run()
@@ -53,10 +67,14 @@ public class ClientHandler extends Thread
             {
                 if (connected)
                 {
-                    ClientCommandRecord nextCommand = incomeCommandQueue.poll();
-                    if (nextCommand != null)
+                    ClientCommandRecord record = incomeCommandQueue.poll();
+                    if (record != null)
                     {
-                        System.out.println("Commande reçue: [code: " + nextCommand.code() + ", payload: " + Arrays.toString(nextCommand.payload()) + "]");
+                        ClientAction action = codeToAction.get(record.code());
+                        if (action != null)
+                        {
+                            action.Execute(record.payload());
+                        }
                     }
                 }
             }
@@ -79,6 +97,8 @@ public class ClientHandler extends Thread
 
         try
         {
+            this.incomeCommandQueue.clear();
+
             Socket socket = new Socket(ip, port);
             this.connected = true;
             System.out.println("Connecté au serveur [" + ip + ":" + port + "]");
@@ -86,7 +106,8 @@ public class ClientHandler extends Thread
 
             inHandler = new ClientHandlerIn(this, this.clientSocket);
             inHandler.start();
-            this.incomeCommandQueue.clear();
+
+            outHandler = new ClientHandlerOut(this, this.clientSocket);
         }
         catch (IOException e)
         {
@@ -133,7 +154,7 @@ public class ClientHandler extends Thread
      */
     public void QueueIncomeCommand(int code, byte[] payload)
     {
-        if (codeToCommand.containsKey(code))
+        if (codeToAction.containsKey(code))
         {
             incomeCommandQueue.add(new ClientCommandRecord(code, payload));
         }

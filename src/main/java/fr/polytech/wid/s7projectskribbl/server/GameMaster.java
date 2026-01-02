@@ -40,6 +40,7 @@ public class GameMaster
         this.promptDebugGameMaster = new PromptDebugGameMaster(this);
         this.promptDebugGameMaster.start();
         this.serverCommandHandler = new ServerCommandHandler(this);
+        this.serverCommandHandler.start();
     }
 
     /**

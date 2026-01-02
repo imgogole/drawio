@@ -1,0 +1,19 @@
+package fr.polytech.wid.s7projectskribbl.client.actions;
+
+import fr.polytech.wid.s7projectskribbl.client.network.ClientHandler;
+import fr.polytech.wid.s7projectskribbl.common.GameCommonMetadata;
+import fr.polytech.wid.s7projectskribbl.common.payloads.PingPayload;
+
+public class CPingAction implements ClientAction
+{
+    @Override
+    public void Execute(byte[] data)
+    {
+        PingPayload pingPayload = new PingPayload();
+        pingPayload.Parse(data);
+        System.out.println("Ping: server->client " + pingPayload.FromNowServer() + "ms");
+        pingPayload.PingAsClient();
+
+        ClientHandler.Singleton().Out().SendCommand(GameCommonMetadata.PING_CODE, pingPayload);
+    }
+}

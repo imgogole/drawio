@@ -1,6 +1,8 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
-import fr.polytech.wid.s7projectskribbl.common.CommandAction;
+import fr.polytech.wid.s7projectskribbl.common.GameCommonMetadata;
+import fr.polytech.wid.s7projectskribbl.server.actions.SPingAction;
+import fr.polytech.wid.s7projectskribbl.server.actions.ServerAction;
 
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -10,7 +12,7 @@ import java.util.Queue;
 public class ServerCommandHandler extends Thread
 {
     private final GameMaster master;
-    private final Map<Integer, CommandAction> codeToCommand;
+    private final Map<Integer, ServerAction> codeToAction;
     private final Queue<ServerCommandRecord> incomeCommandQueue;
 
     private volatile boolean running = true;
@@ -19,7 +21,9 @@ public class ServerCommandHandler extends Thread
     {
         this.master = master;
         this.incomeCommandQueue = new ConcurrentLinkedQueue<>();
-        this.codeToCommand = new HashMap<>();
+        this.codeToAction = new HashMap<>();
+
+        this.codeToAction.put(GameCommonMetadata.PING_CODE, new SPingAction());
     }
 
     /**
@@ -36,7 +40,7 @@ public class ServerCommandHandler extends Thread
             return;
         }
 
-        if (codeToCommand.containsKey(code))
+        if (codeToAction.containsKey(code))
         {
             incomeCommandQueue.add(new ServerCommandRecord(player, code, payload));
         }
@@ -44,6 +48,24 @@ public class ServerCommandHandler extends Thread
 
     public void run()
     {
-
+        try
+        {
+            while (running)
+            {
+                ServerCommandRecord record = incomeCommandQueue.poll();
+                if (record != null)
+                {
+                    ServerAction action = codeToAction.get(record.code());
+                    if (action != null)
+                    {
+                        action.Execute(record.player(), record.payload());
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            System.err.println("ServerCommandHandler.run() exception: " + e.getMessage());
+        }
     }
 }

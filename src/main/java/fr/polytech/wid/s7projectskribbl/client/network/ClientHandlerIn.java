@@ -1,13 +1,10 @@
 package fr.polytech.wid.s7projectskribbl.client.network;
 
-import fr.polytech.wid.s7projectskribbl.common.TerminatedConnectionType;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 
 /**
  * Classe pour recevoir des commandes et des informations du serveur.
@@ -52,8 +49,17 @@ public class ClientHandlerIn extends Thread
 
                 int length = ByteBuffer.wrap(sizeBuf).order(ByteOrder.BIG_ENDIAN).getInt();
 
-                byte[] payload = in.readNBytes(length);
-                if (payload.length < length) break;
+                byte[] payload;
+
+                if (length > 0)
+                {
+                    payload = in.readNBytes(length);
+                    if (payload.length < length) break;
+                }
+                else
+                {
+                    payload = new byte[0];
+                }
 
                 clientHandler.QueueIncomeCommand(code, payload);
             }
