@@ -31,6 +31,7 @@ public class ClientHandler extends Thread
         if (instance == null)
         {
             instance = new ClientHandler();
+            instance.start();
         }
         return instance;
     }
@@ -40,6 +41,8 @@ public class ClientHandler extends Thread
         this.incomeCommandQueue = new ConcurrentLinkedQueue<>();
         this.codeToCommand = new HashMap<>();
         this.running = true;
+
+        this.codeToCommand.put(fr.polytech.wid.s7projectskribbl.common.GameCommonMetadata.PING_CODE, null);
     }
 
     public void run()
@@ -74,13 +77,15 @@ public class ClientHandler extends Thread
         // On s'assure que le client n'est pas déjà dans une partie
         this.Disconnect();
 
-        try (Socket socket = new Socket(ip, port))
+        try
         {
+            Socket socket = new Socket(ip, port);
             this.connected = true;
             System.out.println("Connecté au serveur [" + ip + ":" + port + "]");
             clientSocket = socket;
 
             inHandler = new ClientHandlerIn(this, this.clientSocket);
+            inHandler.start();
             this.incomeCommandQueue.clear();
         }
         catch (IOException e)

@@ -1,12 +1,15 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
 import fr.polytech.wid.s7projectskribbl.common.TerminatedConnectionType;
+import fr.polytech.wid.s7projectskribbl.common.payloads.PingPayload;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+
+import static fr.polytech.wid.s7projectskribbl.common.GameCommonMetadata.PING_CODE;
 
 /**
  * Classe permettant de réaliser des actions à partir de commandes écrites dans l'entrée standard
@@ -110,6 +113,18 @@ public class PromptDebugGameMaster extends Thread
             catch (IOException | InterruptedException e)
             {
                 System.out.println(e.getMessage());
+            }
+        }
+        else if (action.equals("ping"))
+        {
+            ArrayList<PlayerHandler> players = gameMaster.Clients();
+            for (PlayerHandler player : players)
+            {
+                PingPayload payload = new PingPayload();
+                payload.PingAsServer();
+                player.Out().SendCommand(PING_CODE, payload);
+
+                System.out.println("Envoi d'un ping à " + player.Username());
             }
         }
     }

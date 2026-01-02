@@ -57,7 +57,7 @@ public class GameMaster
 
     public ArrayList<PlayerHandler> Clients()
     {
-        return clients;
+        return (waitForPlayersHandler != null) ? waitForPlayersHandler.Results() : this.clients;
     }
 
     public ServerCommandHandler CommandHandler()
@@ -153,7 +153,7 @@ public class GameMaster
      */
     private void TerminateAllPlayers(TerminatedConnectionType type) throws InterruptedException
     {
-        ArrayList<PlayerHandler> clientsToDisconnect = (this.clients != null) ? this.clients : waitForPlayersHandler.Results();
+        ArrayList<PlayerHandler> clientsToDisconnect = this.Clients();
 
         if (clientsToDisconnect != null)
         {
