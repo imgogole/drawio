@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.shape.Circle?>
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="fr.polytech.wid.s7projectskribbl.client.controller.JoinRoomController"
+           prefHeight="400.0" prefWidth="600.0"
+           styleClass="main-panel">
+
+    <VBox alignment="CENTER" spacing="25.0">
+        <Label text="Join a Room" styleClass="titre"/>
+
+        <StackPane>
+            <Circle fx:id="avatarCircle"
+                    radius="60.0"
+                    styleClass="profile-circle-clickable" />
+
+            <Label fx:id="avatarLabel"
+                   text="Profile Picture"
+                   style="-fx-text-fill: #595959; -fx-font-weight: bold;" />
+        </StackPane>
+
+        <HBox alignment="CENTER" spacing="10.0">
+            <Label text="Username : " styleClass="whiteText" style="-fx-font-size: 20px; -fx-font-weight: bold" />
+            <TextField promptText="Choose a username..." fx:id="chooseNameImput"/>
+        </HBox>
+
+        <HBox alignment="CENTER">
+            <Label text="Room IP adress : " styleClass="whiteText" style="-fx-font-size: 20px; -fx-font-weight: bold" />
+            <TextField promptText="Type the Room's IP..." fx:id="roomIPinput"/>
+        </HBox>
+
+        <Button text="Join" fx:id="joinButton"/>
+
+    </VBox>
+
+
+</StackPane>
