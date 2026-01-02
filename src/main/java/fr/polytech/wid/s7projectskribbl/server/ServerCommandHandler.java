@@ -1,23 +1,24 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
-import java.nio.charset.StandardCharsets;
+import fr.polytech.wid.s7projectskribbl.common.CommandAction;
+
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Map;
 import java.util.Queue;
 
-public class GameCommandHandler extends Thread
+public class ServerCommandHandler extends Thread
 {
     private final GameMaster master;
     private final Map<Integer, CommandAction> codeToCommand;
-    private final Queue<CommandRecord> incomeCommandQueue;
+    private final Queue<ServerCommandRecord> incomeCommandQueue;
 
     private volatile boolean running = true;
 
-    public GameCommandHandler(GameMaster master)
+    public ServerCommandHandler(GameMaster master)
     {
         this.master = master;
-        this.incomeCommandQueue = new LinkedList<>();
+        this.incomeCommandQueue = new ConcurrentLinkedQueue<>();
         this.codeToCommand = new HashMap<>();
     }
 
@@ -37,7 +38,7 @@ public class GameCommandHandler extends Thread
 
         if (codeToCommand.containsKey(code))
         {
-            incomeCommandQueue.add(new CommandRecord(player, code, payload));
+            incomeCommandQueue.add(new ServerCommandRecord(player, code, payload));
         }
     }
 

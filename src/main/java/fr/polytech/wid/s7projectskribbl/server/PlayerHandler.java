@@ -16,6 +16,8 @@ public class PlayerHandler
     private final PlayerHandlerIn inHandler;
     private final PlayerHandlerOut outHandler;
 
+    private String username;
+
     public PlayerHandler(Socket clientSocket, GameMaster master) throws IOException
     {
         this.clientSocket = clientSocket;
@@ -23,6 +25,7 @@ public class PlayerHandler
         this.inHandler = new PlayerHandlerIn(clientSocket, this);
         this.outHandler = new PlayerHandlerOut(clientSocket, this);
         this.inHandler.start();
+        this.username = null;
     }
 
     public String IP()
@@ -33,6 +36,21 @@ public class PlayerHandler
     public GameMaster Master()
     {
         return master;
+    }
+
+    public PlayerHandlerIn In()
+    {
+        return inHandler;
+    }
+
+    public PlayerHandlerOut Out()
+    {
+        return outHandler;
+    }
+
+    public String Username()
+    {
+        return username == null ? "[Unnamed Player: " + clientSocket.getInetAddress().getHostAddress() + "]" : username;
     }
 
     /**
@@ -51,31 +69,19 @@ public class PlayerHandler
     public void TerminateConnection(TerminatedConnectionType type)
     {
         // TODO : Envoyer une commande "DisconnectCommand" avec le type.
-        // this.inHandler.SendCommand(new DisconnectCommand(type));
-        try
-        {
-            if (inHandler != null)
-            {
-                inHandler.Close();
-                inHandler.join();
-            }
-            if (outHandler != null)
-            {
-                outHandler.Close();
-            }
-        }
-        catch (InterruptedException e)
-        {
-            System.err.println(e);
-        }
+        // this.outHandler.SendCommand(new DisconnectCommand(type));
         try
         {
             if (clientSocket != null && !clientSocket.isClosed())
             {
                 clientSocket.close();
             }
+            if (inHandler != null)
+            {
+                inHandler.join();
+            }
         }
-        catch (IOException e)
+        catch (IOException | InterruptedException e)
         {
             System.err.println(e);
         }
