@@ -110,6 +110,7 @@
 
 }
 
+
 #sendChat{
 
     -fx-background-color: #f0c50d;
@@ -336,4 +337,69 @@
     -fx-font-style: italic;
     -fx-font-size: 18px;
 
+}
+
+/* -----------------------  Join Room ----------------------- */
+
+
+#chooseNameImput{
+    -fx-background-color: #595959;
+    -fx-text-fill: #aaaaaa;
+    -fx-font-size: 16px;
+    -fx-pref-width: 455px;
+    -fx-pref-height: 42px;
+    -fx-background-radius: 13px;
+}
+
+#roomIPinput{
+    -fx-background-color: #595959;
+    -fx-text-fill: #aaaaaa;
+    -fx-font-size: 16px;
+    -fx-pref-width: 455px;
+    -fx-pref-height: 42px;
+    -fx-background-radius: 13px;
+}
+
+#joinButton{
+    -fx-background-color: #f0c50d;
+    -fx-text-fill: #543015;
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+    -fx-background-radius: 10px;
+    -fx-pref-width: 200px;
+    -fx-cursor: hand;
+}
+
+
+.profile-circle-clickable {
+    -fx-fill: #3E3E3E;
+    -fx-stroke: #595959;
+    -fx-stroke-width: 3px;
+    -fx-stroke-dash-array: 10 15; /* Pointillés */
+    -fx-cursor: hand;
+}
+
+.profile-circle-clickable:hover {
+    -fx-stroke: #f0c50d;
+    -fx-fill: #454545;
+}
+
+
+/* ----------------------- POPUP ----------------------- */
+/* Style du message dans la popup */
+.popup-message {
+    -fx-text-fill: #D3DAD9; /* Blanc gris */
+    -fx-font-size: 18px;
+    -fx-text-alignment: CENTER;
+    -fx-wrap-text: true;
+}
+
+/* Assure-toi que .overlay-panel a bien un fond s'il n'est pas déjà défini */
+.overlay-panel {
+    -fx-background-color: rgba(38, 38, 38, 0.98); /* Fond presque opaque */
+    -fx-background-radius: 20px;
+    -fx-border-color: #f0c50d;
+    -fx-border-width: 3px;
+    -fx-border-radius: 17px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 15, 0, 0, 0);
 }

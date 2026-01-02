@@ -12,7 +12,7 @@ public class ClientApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("GameView.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("JoinRoomView.fxml"));
         Parent root = loader.load();
 
         Scene scene = new Scene(root);
