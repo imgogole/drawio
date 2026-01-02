@@ -15,7 +15,6 @@ public class PlayerHandlerIn extends Thread
     private final InputStream in;
     private final PlayerHandler handler;
     private final Socket clientSocket;
-    private volatile boolean running;
 
     private String username;
 
@@ -24,7 +23,6 @@ public class PlayerHandlerIn extends Thread
         this.clientSocket = clientSocket;
         this.handler = handler;
         this.in = clientSocket.getInputStream();
-        this.running = true;
     }
 
     public InputStream In()
@@ -36,14 +34,12 @@ public class PlayerHandlerIn extends Thread
     {
         try
         {
-            while (running && !clientSocket.isClosed())
+            while (!clientSocket.isClosed())
             {
                 int code = in.read();
 
                 if (code == -1)
                 {
-                    running = false;
-                    handler.TerminateConnection(TerminatedConnectionType.CLIENT_LOGIC);
                     break;
                 }
 
@@ -60,15 +56,7 @@ public class PlayerHandlerIn extends Thread
         }
         catch (IOException e)
         {
-            if (running)
-            {
-                System.out.println("Connexion interrompue pour " + handler.IP() + " : " + e.getMessage());
-            }
+            System.out.println("Connexion terminée pour " + handler.IP() + " : " + e.getMessage());
         }
-    }
-
-    public void Close()
-    {
-        this.running = false;
     }
 }

@@ -60,7 +60,6 @@ public class PlayerHandler
             }
             if (inHandler != null)
             {
-                inHandler.Close();
                 inHandler.join();
             }
             if (outHandler != null)
