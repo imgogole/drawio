@@ -23,10 +23,9 @@ public class GameMaster
     private ServerSocket serverSocket;
     private int port;
 
-    private final ExternalLogger logger;
     private final PromptDebugGameMaster promptDebugGameMaster;
 
-    private final GameCommandHandler gameCommandHandler;
+    private final ServerCommandHandler serverCommandHandler;
 
     private ArrayList<PlayerHandler> clients;
 
@@ -38,11 +37,9 @@ public class GameMaster
     {
         this.timestamp = Instant.now().getEpochSecond();
         this.port = port;
-        this.logger = new ExternalLogger(loggerPort);
-        this.logger.start();
         this.promptDebugGameMaster = new PromptDebugGameMaster(this);
         this.promptDebugGameMaster.start();
-        this.gameCommandHandler = new GameCommandHandler(this);
+        this.serverCommandHandler = new ServerCommandHandler(this);
     }
 
     /**
@@ -58,19 +55,14 @@ public class GameMaster
         return port;
     }
 
-    public ExternalLogger Logger()
-    {
-        return logger;
-    }
-
     public ArrayList<PlayerHandler> Clients()
     {
         return clients;
     }
 
-    public GameCommandHandler CommandHandler()
+    public ServerCommandHandler CommandHandler()
     {
-        return gameCommandHandler;
+        return serverCommandHandler;
     }
 
     /**
@@ -89,7 +81,7 @@ public class GameMaster
         }
         catch (IOException e)
         {
-            logger.LogLn("Erreur: " + e.getMessage());
+            System.out.println("Erreur: " + e.getMessage());
         }
 
         if (serverSocket != null)
@@ -113,14 +105,14 @@ public class GameMaster
         int playersAmount = clients.size();
         if (playersAmount < minimumPlayers)
         {
-            logger.LogLn(String.format("Erreur: Pas assez de joueurs pour commencer la partie. Minimum : %d, Actuel : %d.", minimumPlayers, playersAmount));
+            System.out.println(String.format("Erreur: Pas assez de joueurs pour commencer la partie. Minimum : %d, Actuel : %d.", minimumPlayers, playersAmount));
             return;
         }
 
         this.clients = new ArrayList<PlayerHandler>(clients);
         TerminateWaitForPlayers();
 
-        logger.LogLn("La partie a débuté.");
+        System.out.println("La partie a débuté.");
     }
 
     /**
@@ -129,14 +121,22 @@ public class GameMaster
     public void Terminate() throws IOException, InterruptedException
     {
         TerminateAllPlayers(TerminatedConnectionType.SERVER_LOGIC);
-        serverSocket.close();
-        promptDebugGameMaster.Close();
-        CleanUp();
 
-        logger.LogLn("La partie a été fermée.");
-        logger.Close();
+        if (serverSocket != null && !serverSocket.isClosed())
+        {
+            serverSocket.close();
+        }
+
+        TerminateWaitForPlayers();
+
+        promptDebugGameMaster.Close();
+        System.out.println("La partie a été fermée.");
     }
 
+    /**
+     * Termine le processus d'attente des joueurs s'il existe.
+     * @throws InterruptedException
+     */
     private void TerminateWaitForPlayers() throws InterruptedException
     {
         if (waitForPlayersHandler != null)
@@ -161,7 +161,7 @@ public class GameMaster
             {
                 player.TerminateConnection(type);
             }
-            logger.LogLn("La connexion avec tous les joueurs est terminée.");
+            System.out.println("La connexion avec tous les joueurs est terminée.");
         }
     }
 
@@ -176,7 +176,7 @@ public class GameMaster
         }
         catch (InterruptedException e)
         {
-            logger.LogLn("Erreur lors du CleanUp: " + e.getMessage());
+            System.out.println("Erreur lors du CleanUp: " + e.getMessage());
         }
     }
 }

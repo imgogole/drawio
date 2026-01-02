@@ -51,9 +51,13 @@ public class PlayerHandler
     public void TerminateConnection(TerminatedConnectionType type)
     {
         // TODO : Envoyer une commande "DisconnectCommand" avec le type.
-        // this.inHandler.SendCommand(new DisconnectCommand(type));
+        // this.outHandler.SendCommand(new DisconnectCommand(type));
         try
         {
+            if (clientSocket != null && !clientSocket.isClosed())
+            {
+                clientSocket.close();
+            }
             if (inHandler != null)
             {
                 inHandler.Close();
@@ -64,18 +68,7 @@ public class PlayerHandler
                 outHandler.Close();
             }
         }
-        catch (InterruptedException e)
-        {
-            System.err.println(e);
-        }
-        try
-        {
-            if (clientSocket != null && !clientSocket.isClosed())
-            {
-                clientSocket.close();
-            }
-        }
-        catch (IOException e)
+        catch (IOException | InterruptedException e)
         {
             System.err.println(e);
         }

@@ -65,6 +65,7 @@ public class PromptDebugGameMaster extends Thread
 
     private void Execute(String action, ArrayList<String> args)
     {
+        System.out.println("Commande executée : " + action + " " + String.join(" ", args));
         if (action.equals("kick"))
         {
             if (args.isEmpty())

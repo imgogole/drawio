@@ -1,35 +1,35 @@
-package fr.polytech.wid.s7projectskribbl.server;
+package fr.polytech.wid.s7projectskribbl.client.network;
 
 import fr.polytech.wid.s7projectskribbl.common.TerminatedConnectionType;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import java.nio.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
- * Classe pour recevoir des commandes et des informations du client.
+ * Classe pour recevoir des commandes et des informations du serveur.
  */
-public class PlayerHandlerIn extends Thread
+public class ClientHandlerIn extends Thread
 {
+    private final ClientHandler clientHandler;
     private final InputStream in;
-    private final PlayerHandler handler;
     private final Socket clientSocket;
+
     private volatile boolean running;
 
-    private String username;
-
-    public PlayerHandlerIn(Socket clientSocket, PlayerHandler handler) throws IOException
+    public ClientHandlerIn(ClientHandler handler, Socket socket) throws IOException
     {
-        this.clientSocket = clientSocket;
-        this.handler = handler;
-        this.in = clientSocket.getInputStream();
+        this.clientHandler = handler;
+        this.clientSocket = socket;
+        this.in = socket.getInputStream();
         this.running = true;
     }
 
-    public InputStream In()
+    public void Close() throws IOException
     {
-        return this.in;
+        this.running = false;
     }
 
     public void run()
@@ -43,7 +43,6 @@ public class PlayerHandlerIn extends Thread
                 if (code == -1)
                 {
                     running = false;
-                    handler.TerminateConnection(TerminatedConnectionType.CLIENT_LOGIC);
                     break;
                 }
 
@@ -55,20 +54,12 @@ public class PlayerHandlerIn extends Thread
                 byte[] payload = in.readNBytes(length);
                 if (payload.length < length) break;
 
-                handler.Master().CommandHandler().QueueIncomeCommand(this.handler, code, payload);
+                clientHandler.QueueIncomeCommand(code, payload);
             }
         }
         catch (IOException e)
         {
-            if (running)
-            {
-                System.out.println("Connexion interrompue pour " + handler.IP() + " : " + e.getMessage());
-            }
+            System.out.println("Error ClientHandlerIn run(): " + e.getMessage());
         }
-    }
-
-    public void Close()
-    {
-        this.running = false;
     }
 }

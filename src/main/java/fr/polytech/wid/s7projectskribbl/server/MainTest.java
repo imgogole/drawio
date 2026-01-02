@@ -8,6 +8,6 @@ public class MainTest
     {
         GameMaster master = new GameMaster(5555, 9999);
         String ip = master.Begin();
-        master.Logger().LogLn("Server IP: " + ip);
+        System.out.println("Server IP: " + ip);
     }
 }

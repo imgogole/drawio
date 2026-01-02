@@ -28,11 +28,12 @@ public class WaitForPlayersHandler extends Thread
 
                 if (finish)
                 {
-                    master.Logger().LogLn("Terminaison de WaitForPlayersHandler.");
+                    System.out.println("Terminaison de WaitForPlayersHandler.");
                 }
                 else
                 {
                     handler = new PlayerHandler(client, master);
+                    System.out.println("Un joueur s'est connecté.");
                 }
             }
             catch (IOException e)
@@ -45,10 +46,10 @@ public class WaitForPlayersHandler extends Thread
                 else
                 {
                     // TODO: évaluer la bonne condition pour savoir si un client a voulu se connecter.
-                    master.Logger().LogLn("Une connexion a été refusée: " + e.getMessage());
+                    System.out.println("Une connexion a été refusée: " + e.getMessage());
                 }
             }
-            if (handler != null)
+            if (handler != null && !finish)
             {
                 clients.add(handler);
             }
@@ -61,10 +62,6 @@ public class WaitForPlayersHandler extends Thread
     public void Finish()
     {
         finish = true;
-
-        // Forcer une connexion si .accept() dans le run() bloque.
-        try (Socket wakeup = new Socket("localhost", master.Port())) {}
-        catch (IOException e) {}
     }
 
     /**

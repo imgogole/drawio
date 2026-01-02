@@ -28,9 +28,6 @@ public class PlayerHandlerOut
 
     public void Close()
     {
-        if (this.out != null)
-        {
-            this.out.close();
-        }
+
     }
 }

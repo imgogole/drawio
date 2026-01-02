@@ -219,7 +219,7 @@ public class GameController {
 
         // --- COLOR PICKER ---
         colorPicker.setOnAction(e -> {
-            isEraserActive = false; // changement de couleur => repasser au mode brush
+            isEraserActive = false; // changement de couleur -> repasser au mode brush
             gc.setStroke(colorPicker.getValue());
 
         });
