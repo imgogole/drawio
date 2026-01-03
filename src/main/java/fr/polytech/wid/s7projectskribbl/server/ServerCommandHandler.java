@@ -1,5 +1,6 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
+import fr.polytech.wid.s7projectskribbl.common.CommandCode;
 import fr.polytech.wid.s7projectskribbl.common.GameCommonMetadata;
 import fr.polytech.wid.s7projectskribbl.server.actions.SPingAction;
 import fr.polytech.wid.s7projectskribbl.server.actions.ServerAction;
@@ -23,7 +24,7 @@ public class ServerCommandHandler extends Thread
         this.incomeCommandQueue = new ConcurrentLinkedQueue<>();
         this.codeToAction = new HashMap<>();
 
-        this.codeToAction.put(GameCommonMetadata.PING_CODE, new SPingAction());
+        this.codeToAction.put(CommandCode.PING.Code(), new SPingAction());
     }
 
     /**

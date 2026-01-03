@@ -1,5 +1,6 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
+import fr.polytech.wid.s7projectskribbl.common.CommandCode;
 import fr.polytech.wid.s7projectskribbl.common.TerminatedConnectionType;
 import fr.polytech.wid.s7projectskribbl.common.payloads.PingPayload;
 
@@ -8,8 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-
-import static fr.polytech.wid.s7projectskribbl.common.GameCommonMetadata.PING_CODE;
 
 /**
  * Classe permettant de réaliser des actions à partir de commandes écrites dans l'entrée standard
@@ -122,7 +121,7 @@ public class PromptDebugGameMaster extends Thread
             {
                 PingPayload payload = new PingPayload();
                 payload.PingAsServer();
-                player.Out().SendCommand(PING_CODE, payload);
+                player.Out().SendCommand(CommandCode.PING.Code(), payload);
 
                 System.out.println("Envoi d'un ping à " + player.Username());
             }

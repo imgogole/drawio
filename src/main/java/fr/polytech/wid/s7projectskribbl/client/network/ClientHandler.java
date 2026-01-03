@@ -46,7 +46,7 @@ public class ClientHandler extends Thread
         this.codeToAction = new HashMap<>();
         this.running = true;
 
-        this.codeToAction.put(GameCommonMetadata.PING_CODE, new CPingAction());
+        this.codeToAction.put(CommandCode.PING.Code(), new CPingAction());
     }
 
     public ClientHandlerIn In()
