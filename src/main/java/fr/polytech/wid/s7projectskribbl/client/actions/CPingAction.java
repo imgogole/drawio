@@ -11,8 +11,6 @@ public class CPingAction implements ClientAction
     {
         PingPayload pingPayload = new PingPayload();
         pingPayload.Parse(data);
-        System.out.println("Ping: server->client " + pingPayload.FromNowServer() + "ms");
-        pingPayload.PingAsClient();
 
         ClientHandler.Singleton().Out().SendCommand(CommandCode.PING.Code(), pingPayload);
     }

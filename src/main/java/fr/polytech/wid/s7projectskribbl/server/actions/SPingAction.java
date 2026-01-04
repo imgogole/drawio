@@ -10,6 +10,8 @@ public class SPingAction implements ServerAction
     {
         PingPayload pingPayload = new PingPayload();
         pingPayload.Parse(data);
-        System.out.println("Ping " + player.Username() + ": client->server " + pingPayload.FromNowClient() + "ms");
+
+        long rtt = pingPayload.GetElapsed();
+        System.out.println("Ping " + player.Username() + ": " + rtt + "ms (RTT)");
     }
 }

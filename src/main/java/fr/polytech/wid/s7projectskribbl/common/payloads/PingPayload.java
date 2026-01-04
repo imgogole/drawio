@@ -5,51 +5,31 @@ import java.time.Instant;
 
 public class PingPayload extends Payload
 {
-    private long pingTimeServer;
-    private long pingTimeClient;
-
-    public PingPayload()
-    {
-        this.pingTimeServer = -1;
-        this.pingTimeClient = -1;
-    }
+    private long timestamp;
 
     @Override
     public void Parse(byte[] payload)
     {
         ByteBuffer bb = ByteBuffer.wrap(payload);
-        pingTimeServer = bb.getLong();
-        pingTimeClient = bb.getLong();
+        this.timestamp = bb.getLong();
     }
 
     @Override
     public ByteBuffer ToBytes()
     {
-        ByteBuffer bb = ByteBuffer.allocate(Long.BYTES * 2);
-        bb.putLong(pingTimeServer);
-        bb.putLong(pingTimeClient);
-
+        ByteBuffer bb = ByteBuffer.allocate(Long.BYTES);
+        bb.putLong(this.timestamp);
         bb.flip();
         return bb;
     }
 
-    public void PingAsServer()
+    public void SetTimestamp()
     {
-        this.pingTimeServer = Instant.now().toEpochMilli();
+        this.timestamp = Instant.now().toEpochMilli();
     }
 
-    public void PingAsClient()
+    public long GetElapsed()
     {
-        this.pingTimeClient = Instant.now().toEpochMilli();
-    }
-
-    public long FromNowServer()
-    {
-        return Instant.now().toEpochMilli() - this.pingTimeClient;
-    }
-
-    public long FromNowClient()
-    {
-        return Instant.now().toEpochMilli() - this.pingTimeServer;
+        return Instant.now().toEpochMilli() - this.timestamp;
     }
 }

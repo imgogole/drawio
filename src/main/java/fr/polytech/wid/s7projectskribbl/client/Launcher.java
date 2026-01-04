@@ -8,7 +8,7 @@ public class Launcher
     public static void main(String[] args)
     {
         ClientHandler client = ClientHandler.Singleton();
-        client.Connect("5.tcp.eu.ngrok.io", 11259);
+        client.Connect("5.tcp.eu.ngrok.io", 12153);
         //Application.launch(ClientApplication.class, args);
     }
 }
