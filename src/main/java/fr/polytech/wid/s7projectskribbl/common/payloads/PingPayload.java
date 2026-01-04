@@ -43,11 +43,11 @@ public class PingPayload extends Payload
 
     public long FromNowServer()
     {
-        return Instant.now().toEpochMilli() - this.pingTimeServer;
+        return Instant.now().toEpochMilli() - this.pingTimeClient;
     }
 
     public long FromNowClient()
     {
-        return Instant.now().toEpochMilli() - this.pingTimeClient;
+        return Instant.now().toEpochMilli() - this.pingTimeServer;
     }
 }

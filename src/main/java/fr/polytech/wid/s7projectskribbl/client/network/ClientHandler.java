@@ -112,6 +112,7 @@ public class ClientHandler extends Thread
         catch (IOException e)
         {
             System.out.println("Erreur de connection à [" + ip + ":" + port + "]: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
