@@ -7,25 +7,48 @@ public class ServerMessagePayload extends Payload
 {
     private String message;
 
+    public ServerMessagePayload()
+    {
+        this.message = "";
+    }
+
+    public ServerMessagePayload(String msg)
+    {
+        this.message = (msg != null) ? msg : "";
+    }
+
     public String Message()
     {
         return message;
     }
 
-    public ServerMessagePayload(String msg)
-    {
-        this.message = msg;
-    }
-
     @Override
     public void Parse(byte[] payload)
     {
-        message = new String(payload, StandardCharsets.UTF_8);
+        if (payload == null || payload.length < Integer.BYTES) return;
+
+        ByteBuffer bb = ByteBuffer.wrap(payload);
+        int byteLength = bb.getInt();
+
+        if (bb.remaining() < byteLength) return;
+
+        byte[] msgBytes = new byte[byteLength];
+        bb.get(msgBytes);
+        this.message = new String(msgBytes, StandardCharsets.UTF_8);
     }
 
     @Override
     public ByteBuffer ToBytes()
     {
-        return null;
+        byte[] msgBytes = message.getBytes(StandardCharsets.UTF_8);
+
+        ByteBuffer bb = ByteBuffer.allocate(Integer.BYTES + msgBytes.length);
+
+        bb.putInt(msgBytes.length);
+        bb.put(msgBytes);
+
+        bb.flip();
+
+        return bb;
     }
 }

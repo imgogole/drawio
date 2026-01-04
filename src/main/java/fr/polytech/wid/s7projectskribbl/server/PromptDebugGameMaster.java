@@ -3,6 +3,7 @@ package fr.polytech.wid.s7projectskribbl.server;
 import fr.polytech.wid.s7projectskribbl.common.CommandCode;
 import fr.polytech.wid.s7projectskribbl.common.TerminatedConnectionType;
 import fr.polytech.wid.s7projectskribbl.common.payloads.PingPayload;
+import fr.polytech.wid.s7projectskribbl.common.payloads.ServerMessagePayload;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -68,6 +69,7 @@ public class PromptDebugGameMaster extends Thread
     private void Execute(String action, ArrayList<String> args)
     {
         System.out.println("Commande executée : " + action + " " + String.join(" ", args));
+        ArrayList<PlayerHandler> players = gameMaster.Clients();
         if (action.equals("kick"))
         {
             if (args.isEmpty())
@@ -116,14 +118,23 @@ public class PromptDebugGameMaster extends Thread
         }
         else if (action.equals("ping"))
         {
-            ArrayList<PlayerHandler> players = gameMaster.Clients();
             for (PlayerHandler player : players)
             {
                 PingPayload payload = new PingPayload();
-                payload.PingAsServer();
+                payload.SetTimestamp();
                 player.Out().SendCommand(CommandCode.PING.Code(), payload);
 
                 System.out.println("Envoi d'un ping à " + player.Username());
+            }
+        }
+        else if (action.equals("msg"))
+        {
+            for (PlayerHandler player : players)
+            {
+                ServerMessagePayload payload = new ServerMessagePayload(String.join(" ", args));
+                player.Out().SendCommand(CommandCode.SERVER_MESSAGE.Code(), payload);
+
+                System.out.println("Envoi d'un message à " + player.Username());
             }
         }
     }

@@ -1,6 +1,7 @@
 package fr.polytech.wid.s7projectskribbl.client.network;
 
 import fr.polytech.wid.s7projectskribbl.client.actions.CPingAction;
+import fr.polytech.wid.s7projectskribbl.client.actions.CServerMessage;
 import fr.polytech.wid.s7projectskribbl.client.actions.ClientAction;
 import fr.polytech.wid.s7projectskribbl.common.*;
 import fr.polytech.wid.s7projectskribbl.server.actions.ServerAction;
@@ -47,6 +48,7 @@ public class ClientHandler extends Thread
         this.running = true;
 
         this.codeToAction.put(CommandCode.PING.Code(), new CPingAction());
+        this.codeToAction.put(CommandCode.SERVER_MESSAGE.Code(), new CServerMessage());
     }
 
     public ClientHandlerIn In()

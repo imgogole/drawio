@@ -12,22 +12,50 @@ public class PlayerInfoPayload extends Payload
      */
 
     private String username;
+    private byte[] avatarPng;
 
+    public PlayerInfoPayload(String username, byte[] avatarPng)
+    {
+        this.username = username;
+        this.avatarPng = avatarPng;
+    }
+
+    public PlayerInfoPayload() {}
 
     @Override
     public void Parse(byte[] payload)
     {
         ByteBuffer bb = ByteBuffer.wrap(payload);
-        int lengthUsername = bb.getInt();
-        ByteBuffer usernamebb = bb.slice();
-        usernamebb.limit(lengthUsername);
-        this.username = new String(usernamebb.array(), StandardCharsets.UTF_8);
 
+        int lengthUsername = bb.getInt();
+        byte[] nameBytes = new byte[lengthUsername];
+        bb.get(nameBytes);
+        this.username = new String(nameBytes, StandardCharsets.UTF_8);
+
+        int lengthPng = bb.getInt();
+        this.avatarPng = new byte[lengthPng];
+        bb.get(this.avatarPng);
     }
 
     @Override
     public ByteBuffer ToBytes()
     {
-        return null;
+        byte[] nameBytes = username.getBytes(StandardCharsets.UTF_8);
+
+        int totalSize = Integer.BYTES + nameBytes.length + Integer.BYTES + avatarPng.length;
+
+        ByteBuffer bb = ByteBuffer.allocate(totalSize);
+
+        bb.putInt(nameBytes.length);
+        bb.put(nameBytes);
+
+        bb.putInt(avatarPng.length);
+        bb.put(avatarPng);
+
+        bb.flip();
+        return bb;
     }
+
+    public String Username() { return username; }
+    public byte[] AvatarPng() { return avatarPng; }
 }
