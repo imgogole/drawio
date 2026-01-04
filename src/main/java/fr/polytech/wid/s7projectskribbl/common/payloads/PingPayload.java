@@ -23,12 +23,14 @@ public class PingPayload extends Payload
     }
 
     @Override
-    public byte[] ToBytes()
+    public ByteBuffer ToBytes()
     {
         ByteBuffer bb = ByteBuffer.allocate(Long.BYTES * 2);
         bb.putLong(pingTimeServer);
         bb.putLong(pingTimeClient);
-        return bb.array();
+
+        bb.flip();
+        return bb;
     }
 
     public void PingAsServer()

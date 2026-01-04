@@ -1,5 +1,6 @@
 package fr.polytech.wid.s7projectskribbl.common.payloads;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class ServerMessagePayload extends Payload
@@ -23,8 +24,8 @@ public class ServerMessagePayload extends Payload
     }
 
     @Override
-    public byte[] ToBytes()
+    public ByteBuffer ToBytes()
     {
-        return message.getBytes(StandardCharsets.UTF_8);
+        return null;
     }
 }

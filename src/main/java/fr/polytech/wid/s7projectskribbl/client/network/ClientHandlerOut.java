@@ -29,26 +29,19 @@ public class ClientHandlerOut
     {
         try
         {
-            ByteBuffer buffer;
-            if (p != null)
-            {
-                byte[] payload = p.ToBytes();
-                int payloadSize = payload.length;
+            ByteBuffer payloadBuffer = (p != null) ? p.ToBytes() : null;
+            int payloadSize = (payloadBuffer != null) ? payloadBuffer.remaining() : 0;
 
-                buffer = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + payloadSize);
-                buffer.put((byte)code);
-                buffer.putInt(payloadSize);
-                buffer.put(payload);
-            }
-            else
+            ByteBuffer message = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + payloadSize);
+            message.put((byte)code);
+            message.putInt(payloadSize);
+
+            if (payloadBuffer != null)
             {
-                // La requête ne nécessite pas de payload.
-                buffer = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES);
-                buffer.put((byte)code);
-                buffer.putInt(0);
+                message.put(payloadBuffer);
             }
 
-            out.write(buffer.array());
+            out.write(message.array(), 0, message.position());
             out.flush();
         }
         catch (IOException e)

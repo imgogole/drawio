@@ -1,5 +1,7 @@
 package fr.polytech.wid.s7projectskribbl.common.payloads;
 
+import java.nio.ByteBuffer;
+
 /**
  * Classe abstraite pour les données des commandes réseaux
  */
@@ -15,6 +17,6 @@ public abstract class Payload
      * Cenverti le payload en des données brutes pour l'envoi en socket.
      * @return
      */
-    public abstract byte[] ToBytes();
+    public abstract ByteBuffer ToBytes();
 
 }
