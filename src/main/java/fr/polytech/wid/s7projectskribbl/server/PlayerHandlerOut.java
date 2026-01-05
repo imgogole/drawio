@@ -1,5 +1,6 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
+import fr.polytech.wid.s7projectskribbl.common.CommandCode;
 import fr.polytech.wid.s7projectskribbl.common.payloads.Payload;
 
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class PlayerHandlerOut
         return this.out;
     }
 
-    public <T extends Payload> void SendCommand(int code, T p)
+    public <T extends Payload> void SendCommand(CommandCode code, T p)
     {
         try
         {
@@ -36,7 +37,7 @@ public class PlayerHandlerOut
             int payloadSize = (payloadBuffer != null) ? payloadBuffer.remaining() : 0;
 
             ByteBuffer message = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + payloadSize);
-            message.put((byte)code);
+            message.put((byte)(code.Code()));
             message.putInt(payloadSize);
 
             if (payloadBuffer != null)

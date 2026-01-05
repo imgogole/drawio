@@ -12,7 +12,7 @@ public class ServerMessagePayload extends Payload
         this.message = "";
     }
 
-    public ServerMessagePayload(String msg)
+    public ServerMessagePayload( String msg)
     {
         this.message = (msg != null) ? msg : "";
     }

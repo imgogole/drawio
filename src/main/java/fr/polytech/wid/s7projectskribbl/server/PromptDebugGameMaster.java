@@ -122,7 +122,7 @@ public class PromptDebugGameMaster extends Thread
             {
                 PingPayload payload = new PingPayload();
                 payload.SetTimestamp();
-                player.Out().SendCommand(CommandCode.PING.Code(), payload);
+                player.Out().SendCommand(CommandCode.PING, payload);
 
                 System.out.println("Envoi d'un ping à " + player.Username());
             }
@@ -132,7 +132,7 @@ public class PromptDebugGameMaster extends Thread
             for (PlayerHandler player : players)
             {
                 ServerMessagePayload payload = new ServerMessagePayload(String.join(" ", args));
-                player.Out().SendCommand(CommandCode.SERVER_MESSAGE.Code(), payload);
+                player.Out().SendCommand(CommandCode.SERVER_MESSAGE, payload);
 
                 System.out.println("Envoi d'un message à " + player.Username());
             }
