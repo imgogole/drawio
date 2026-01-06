@@ -23,7 +23,7 @@ public class PopupService {
     /**
      * Affiche une popup centrée avec animation élastique et fond assombri.
      */
-    public static void showError(String title, String message, Window ownerWindow) {
+    public static PopupController showPopup(String title, String message, Window ownerWindow, boolean hasButton) {
         try {
             // --- CHARGEMENT ---
             String fxmlPath = "/fr/polytech/wid/s7projectskribbl/client/PopupView.fxml";
@@ -36,6 +36,7 @@ public class PopupService {
             PopupController controller = loader.getController();
             if (controller != null) {
                 controller.setContent(title, message);
+                controller.setButtonVisible(hasButton);
             }
 
             // ---  CRÉATION DU FOND NOIR (OVERLAY) ---
@@ -115,10 +116,20 @@ public class PopupService {
             });
 
             // --- AFFICHAGE ---
-            popupStage.showAndWait();
+            if (hasButton)
+            {
+                popupStage.showAndWait();
+            }
+            else
+            {
+                popupStage.show();
+            }
+
+            return controller;
 
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
     }
 

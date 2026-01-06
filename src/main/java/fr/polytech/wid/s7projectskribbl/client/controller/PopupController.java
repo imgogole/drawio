@@ -41,7 +41,20 @@ public class PopupController {
         okButton.setOnAction(event -> closeWithAnimation());
     }
 
-    private void closeWithAnimation() {
+
+    public void setButtonVisible(boolean visible)
+    {
+        okButton.setVisible(visible);
+        okButton.setManaged(visible);
+    }
+
+    public void closeWithAnimation() {
+        if (okButton.getScene() == null)
+        {
+            return;
+        }
+
+
         // On récupère le root node (la VBox de la popup)
         // okButton.getParent() renvoie la VBox si le bouton est directement dedans
         Node root = okButton.getParent();

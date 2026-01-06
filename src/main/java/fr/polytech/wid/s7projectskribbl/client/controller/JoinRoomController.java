@@ -147,22 +147,39 @@ public class JoinRoomController {
             roomIPinput.setStyle(null);
         }
 
+
         if (hasError)
         {
-            PopupService.showError(
+            PopupService.showPopup(
                     "Missing data!",
                     errorMsg.toString(),
-                    currentWindow
+                    currentWindow,
+                    true
             );
             return;
         }
 
+        PopupController loadingPopup = null;
+
         try
         {
-            // TODO : Afficher une popup sans bouton "Connecting to game..."
+
+            loadingPopup = PopupService.showPopup(
+                    "Connecting to game...",
+                    "Please Wait...",
+                    currentWindow,
+                    false
+            );
+
+
 
             ClientHandler client = ClientHandler.Singleton();
             client.Connect(IP.trim(), GameCommonMetadata.GamePort);
+
+            if(loadingPopup != null)
+            {
+                loadingPopup.closeWithAnimation();
+            }
 
             ClientApplication.LoadScene("WaitingRoomView.fxml");
         }
@@ -170,10 +187,16 @@ public class JoinRoomController {
         {
             System.err.println("Erreur connecting to [" + IP.trim() + "]: " + e.getMessage());
 
-            PopupService.showError(
+            if(loadingPopup != null)
+            {
+                loadingPopup.closeWithAnimation();
+            }
+
+            PopupService.showPopup(
                     "Unable to connect to server",
                     e.getMessage(),
-                    currentWindow
+                    currentWindow,
+                    true
             );
         }
     }
