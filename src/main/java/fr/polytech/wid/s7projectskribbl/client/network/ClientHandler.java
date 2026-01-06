@@ -4,16 +4,13 @@ import fr.polytech.wid.s7projectskribbl.client.actions.CPingAction;
 import fr.polytech.wid.s7projectskribbl.client.actions.CServerMessage;
 import fr.polytech.wid.s7projectskribbl.client.actions.ClientAction;
 import fr.polytech.wid.s7projectskribbl.common.*;
-import fr.polytech.wid.s7projectskribbl.server.actions.ServerAction;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.Arrays;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * Classe de communication client/serveur.
@@ -26,7 +23,7 @@ public class ClientHandler extends Thread
     private static ClientHandler instance;
 
     private final Map<Integer, ClientAction> codeToAction;
-    private final Queue<ClientCommandRecord> incomeCommandQueue;
+    private final BlockingQueue<ClientCommandRecord> incomeCommandQueue;
 
     private volatile boolean connected = false;
     private volatile boolean running;
@@ -43,7 +40,7 @@ public class ClientHandler extends Thread
 
     public ClientHandler()
     {
-        this.incomeCommandQueue = new ConcurrentLinkedQueue<>();
+        this.incomeCommandQueue = new PriorityBlockingQueue<>();
         this.codeToAction = new HashMap<>();
         this.running = true;
 
@@ -89,51 +86,38 @@ public class ClientHandler extends Thread
 
     /**
      * Connecte ce client au serveur de jeu.
-     * @param ip L'IP de la partie
+     *
+     * @param ip   L'IP de la partie
      * @param port Le port de la partie
      */
-    public void Connect(String ip, int port)
+    public void Connect(String ip, int port) throws IOException
     {
         // On s'assure que le client n'est pas déjà dans une partie
         this.Disconnect();
 
-        try
-        {
-            this.incomeCommandQueue.clear();
+        this.incomeCommandQueue.clear();
 
-            Socket socket = new Socket(ip, port);
-            this.connected = true;
-            System.out.println("Connecté au serveur [" + ip + ":" + port + "]");
-            clientSocket = socket;
+        Socket socket = new Socket(ip, port);
+        this.connected = true;
+        this.clientSocket = socket;
 
-            inHandler = new ClientHandlerIn(this, this.clientSocket);
-            inHandler.start();
+        inHandler = new ClientHandlerIn(this, this.clientSocket);
+        inHandler.start();
 
-            outHandler = new ClientHandlerOut(this, this.clientSocket);
-        }
-        catch (IOException e)
-        {
-            System.out.println("Erreur de connection à [" + ip + ":" + port + "]: " + e.getMessage());
-            e.printStackTrace();
-        }
+        outHandler = new ClientHandlerOut(this, this.clientSocket);
+
+        System.out.println("Connecté au serveur [" + ip + ":" + port + "]");
     }
 
     /**
      * Déconnecte le client de la partie.
      */
-    public void Disconnect()
+    public void Disconnect() throws IOException
     {
         if (clientSocket != null)
         {
-            try
-            {
-                clientSocket.close();
-                inHandler.Close();
-            }
-            catch (IOException e)
-            {
-
-            }
+            clientSocket.close();
+            inHandler.Close();
 
             clientSocket = null;
         }
@@ -143,7 +127,7 @@ public class ClientHandler extends Thread
     /**
      * Déconnecte le client de la partie et termine ce ClientHandler.
      */
-    public void DisconnectAndStop()
+    public void DisconnectAndStop() throws IOException
     {
         this.Disconnect();
         this.running = false;
@@ -155,11 +139,11 @@ public class ClientHandler extends Thread
      * @param code    Le code de la commande
      * @param payload Les paramètres de la commande
      */
-    public void QueueIncomeCommand(int code, byte[] payload)
+    public void QueueIncomeCommand(int code, long timestamp, byte[] payload)
     {
         if (codeToAction.containsKey(code))
         {
-            incomeCommandQueue.add(new ClientCommandRecord(code, payload));
+            incomeCommandQueue.add(new ClientCommandRecord(code, timestamp, payload));
         }
     }
 }

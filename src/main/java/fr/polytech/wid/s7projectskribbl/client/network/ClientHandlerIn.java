@@ -40,9 +40,13 @@ public class ClientHandlerIn extends Thread
 
                 if (code == -1)
                 {
-                    running = false;
                     break;
                 }
+
+                byte[] timestampBuf = in.readNBytes(8);
+                if (timestampBuf.length < 8) break;
+
+                long timestamp = ByteBuffer.wrap(timestampBuf).order(ByteOrder.BIG_ENDIAN).getLong();
 
                 byte[] sizeBuf = in.readNBytes(4);
                 if (sizeBuf.length < 4) break;
@@ -61,7 +65,7 @@ public class ClientHandlerIn extends Thread
                     payload = new byte[0];
                 }
 
-                clientHandler.QueueIncomeCommand(code, payload);
+                clientHandler.QueueIncomeCommand(code, timestamp, payload);
             }
         }
         catch (IOException e)

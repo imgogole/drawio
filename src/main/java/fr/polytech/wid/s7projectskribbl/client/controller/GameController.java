@@ -1,5 +1,6 @@
 package fr.polytech.wid.s7projectskribbl.client.controller;
 
+import fr.polytech.wid.s7projectskribbl.client.network.ClientHandler;
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
 import javafx.application.Platform;
@@ -502,31 +503,34 @@ public class GameController {
     }
 
 
-    private void quitGame(){
-        System.out.println("Quitting game...");
+    private void quitGame()
+    {
+        try
+        {
+            ClientHandler.Singleton().Disconnect();
+        }
+        catch (Exception e)
+        {
+
+        }
         Platform.exit();
         System.exit(0);
     }
 
-    private void restartGame(){
+    private void restartGame()
+    {
         System.out.println("Relancement de la partie...");
-
-        // Réinitialisation de l'interface
         hideRoundEnd();
         gc.clearRect(0,0,drawingCanvas.getWidth(), drawingCanvas.getHeight());
         messagesContainer.getChildren().clear();
 
-        // Réinitialisation des compteurs
         if (currentRound != null)
         {
             currentRound.setText("1");
         }
 
         updateGameState(isDrawer, WORD);
-
     }
-
-
 }
 
 

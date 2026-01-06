@@ -34,10 +34,12 @@ public class PlayerHandlerOut
         try
         {
             ByteBuffer payloadBuffer = (p != null) ? p.ToBytes() : null;
+            long timestamp = System.currentTimeMillis();
             int payloadSize = (payloadBuffer != null) ? payloadBuffer.remaining() : 0;
 
-            ByteBuffer message = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + payloadSize);
+            ByteBuffer message = ByteBuffer.allocate(Byte.BYTES + Long.BYTES + Integer.BYTES + payloadSize);
             message.put((byte)(code.Code()));
+            message.putLong(timestamp);
             message.putInt(payloadSize);
 
             if (payloadBuffer != null)

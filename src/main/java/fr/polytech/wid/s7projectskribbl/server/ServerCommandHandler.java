@@ -1,30 +1,30 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
 import fr.polytech.wid.s7projectskribbl.common.CommandCode;
-import fr.polytech.wid.s7projectskribbl.common.GameCommonMetadata;
 import fr.polytech.wid.s7projectskribbl.server.actions.SPingAction;
+import fr.polytech.wid.s7projectskribbl.server.actions.SReadyAction;
 import fr.polytech.wid.s7projectskribbl.server.actions.ServerAction;
 
-import java.util.HashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class ServerCommandHandler extends Thread
 {
     private final GameMaster master;
     private final Map<Integer, ServerAction> codeToAction;
-    private final Queue<ServerCommandRecord> incomeCommandQueue;
+
+    private final Map<PlayerHandler, PriorityQueue<ServerCommandRecord>> perPlayerQueues = new ConcurrentHashMap<>();
+
+    private final BlockingQueue<PlayerHandler> playersWithPendingCommands = new LinkedBlockingQueue<>();
 
     private volatile boolean running = true;
 
     public ServerCommandHandler(GameMaster master)
     {
         this.master = master;
-        this.incomeCommandQueue = new ConcurrentLinkedQueue<>();
         this.codeToAction = new HashMap<>();
-
         this.codeToAction.put(CommandCode.PING.Code(), new SPingAction());
+        this.codeToAction.put(CommandCode.READY.Code(), new SReadyAction());
     }
 
     /**
@@ -34,26 +34,47 @@ public class ServerCommandHandler extends Thread
      * @param code    Le code de la commande
      * @param payload Les paramètres de la commande
      */
-    public void QueueIncomeCommand(PlayerHandler player, int code, byte[] payload)
+    public void QueueIncomeCommand(PlayerHandler player, int code, long timestamp, byte[] payload)
     {
-        if (!running)
-        {
-            return;
-        }
+        if (!running) return;
 
-        if (codeToAction.containsKey(code))
+        PriorityQueue<ServerCommandRecord> queue = perPlayerQueues.computeIfAbsent(player, k -> new PriorityQueue<>());
+
+        synchronized (queue)
         {
-            incomeCommandQueue.add(new ServerCommandRecord(player, code, payload));
+            boolean wasEmpty = queue.isEmpty();
+            queue.add(new ServerCommandRecord(player, code, timestamp, payload));
+
+            if (wasEmpty)
+            {
+                playersWithPendingCommands.offer(player);
+            }
         }
     }
 
+    @Override
     public void run()
     {
         try
         {
             while (running)
             {
-                ServerCommandRecord record = incomeCommandQueue.poll();
+                PlayerHandler player = playersWithPendingCommands.take();
+
+                PriorityQueue<ServerCommandRecord> queue = perPlayerQueues.get(player);
+                if (queue == null) continue;
+
+                ServerCommandRecord record;
+                synchronized (queue)
+                {
+                    record = queue.poll();
+
+                    if (!queue.isEmpty())
+                    {
+                        playersWithPendingCommands.offer(player);
+                    }
+                }
+
                 if (record != null)
                 {
                     ServerAction action = codeToAction.get(record.code());
@@ -64,9 +85,14 @@ public class ServerCommandHandler extends Thread
                 }
             }
         }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+        }
         catch (Exception e)
         {
-            System.err.println("ServerCommandHandler.run() exception: " + e.getMessage());
+            System.err.println("Erreur Handler: " + e.getMessage());
         }
     }
 }
+

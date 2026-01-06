@@ -43,6 +43,11 @@ public class PlayerHandlerIn extends Thread
                     break;
                 }
 
+                byte[] timestampBuf = in.readNBytes(8);
+                if (timestampBuf.length < 8) break;
+
+                long timestamp = ByteBuffer.wrap(timestampBuf).order(ByteOrder.BIG_ENDIAN).getLong();
+
                 byte[] sizeBuf = in.readNBytes(4);
                 if (sizeBuf.length < 4) break;
 
@@ -60,7 +65,7 @@ public class PlayerHandlerIn extends Thread
                     payload = new byte[0];
                 }
 
-                handler.Master().CommandHandler().QueueIncomeCommand(this.handler, code, payload);
+                handler.Master().CommandHandler().QueueIncomeCommand(this.handler, code, timestamp, payload);
             }
         }
         catch (IOException e)

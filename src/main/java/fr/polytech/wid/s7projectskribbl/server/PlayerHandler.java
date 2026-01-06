@@ -16,6 +16,7 @@ public class PlayerHandler
     private final PlayerHandlerIn inHandler;
     private final PlayerHandlerOut outHandler;
 
+    private boolean ready;
     private String username;
 
     public PlayerHandler(Socket clientSocket, GameMaster master) throws IOException
@@ -26,6 +27,7 @@ public class PlayerHandler
         this.outHandler = new PlayerHandlerOut(clientSocket, this);
         this.inHandler.start();
         this.username = null;
+        this.ready = false;
     }
 
     public String IP()
@@ -51,6 +53,15 @@ public class PlayerHandler
     public String Username()
     {
         return username == null ? "[Unnamed Player: " + clientSocket.getInetAddress().getHostAddress() + "]" : username;
+    }
+
+    /**
+     * Indique si le joueur est prêt à jouer.
+     * @param ready
+     */
+    public void SetReady(boolean ready)
+    {
+        this.ready = ready;
     }
 
     /**

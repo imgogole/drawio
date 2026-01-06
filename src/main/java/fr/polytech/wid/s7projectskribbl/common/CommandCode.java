@@ -4,7 +4,8 @@ public enum CommandCode
 {
     PING(0),
     REQUEST_PLAYER_INFO(1),
-    SERVER_MESSAGE(2);
+    SERVER_MESSAGE(2),
+    READY(3);
 
     private final int code;
 
