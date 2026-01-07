@@ -2,6 +2,7 @@ package fr.polytech.wid.s7projectskribbl.server;
 
 import fr.polytech.wid.s7projectskribbl.common.TerminatedConnectionType;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -18,6 +19,10 @@ public class PlayerHandler
 
     private boolean ready;
     private String username;
+    private BufferedImage avatar;
+
+    private int id;
+    private static int currentId = 0;
 
     public PlayerHandler(Socket clientSocket, GameMaster master) throws IOException
     {
@@ -28,11 +33,17 @@ public class PlayerHandler
         this.inHandler.start();
         this.username = null;
         this.ready = false;
+        this.id = currentId++;
     }
 
     public String IP()
     {
         return clientSocket.getInetAddress().getHostAddress();
+    }
+
+    public int ID()
+    {
+        return id;
     }
 
     public GameMaster Master()
@@ -54,6 +65,13 @@ public class PlayerHandler
     {
         return username == null ? "[Unnamed Player: " + clientSocket.getInetAddress().getHostAddress() + "]" : username;
     }
+
+    public void SetUsername(String username)
+    {
+        this.username = username;
+    }
+
+    public boolean IsReady() { return this.ready; }
 
     /**
      * Indique si le joueur est prêt à jouer.
@@ -96,5 +114,15 @@ public class PlayerHandler
         {
             System.err.println(e);
         }
+    }
+
+    public BufferedImage Avatar()
+    {
+        return avatar;
+    }
+
+    public void SetAvatar(BufferedImage avatar)
+    {
+        this.avatar = avatar;
     }
 }

@@ -1,11 +1,15 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
+import fr.polytech.wid.s7projectskribbl.common.CommandCode;
 import fr.polytech.wid.s7projectskribbl.common.TerminatedConnectionType;
+import fr.polytech.wid.s7projectskribbl.common.payloads.ClientImagesPayload;
+import fr.polytech.wid.s7projectskribbl.common.payloads.records.ClientImageItem;
 
 import java.io.*;
 import java.net.*;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Instance d'une partie de jeu côté serveur.
@@ -178,6 +182,25 @@ public class GameMaster
         catch (InterruptedException e)
         {
             System.out.println("Erreur lors du CleanUp: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Envoie une commande de mise à jour des clients pour tous les clients.
+     */
+    public void UpdateClientImages()
+    {
+        List<ClientImageItem> items = new ArrayList<ClientImageItem>();
+        for (PlayerHandler player : Clients())
+        {
+            items.add(new ClientImageItem(player.ID(), player.Username(), player.Avatar(), player.IsReady()));
+        }
+
+        ClientImagesPayload payload = new ClientImagesPayload(items);
+
+        for (PlayerHandler player : Clients())
+        {
+            player.Out().SendCommand(CommandCode.UPDATE_CLIENT_IMAGES, payload);
         }
     }
 }

@@ -2,6 +2,7 @@ package fr.polytech.wid.s7projectskribbl.server;
 
 import fr.polytech.wid.s7projectskribbl.common.CommandCode;
 import fr.polytech.wid.s7projectskribbl.server.actions.SPingAction;
+import fr.polytech.wid.s7projectskribbl.server.actions.SPlayerInfoRequestAction;
 import fr.polytech.wid.s7projectskribbl.server.actions.SReadyAction;
 import fr.polytech.wid.s7projectskribbl.server.actions.ServerAction;
 
@@ -25,6 +26,7 @@ public class ServerCommandHandler extends Thread
         this.codeToAction = new HashMap<>();
         this.codeToAction.put(CommandCode.PING.Code(), new SPingAction());
         this.codeToAction.put(CommandCode.READY.Code(), new SReadyAction());
+        this.codeToAction.put(CommandCode.REQUEST_PLAYER_INFO.Code(), new SPlayerInfoRequestAction());
     }
 
     /**
@@ -91,7 +93,7 @@ public class ServerCommandHandler extends Thread
         }
         catch (Exception e)
         {
-            System.err.println("Erreur Handler: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

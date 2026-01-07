@@ -37,12 +37,31 @@ public class JoinRoomController {
     @FXML
     private Button joinButton;
 
+    private static JoinRoomController instance;
+
+    public static JoinRoomController Singleton()
+    {
+        return instance;
+    }
 
     // Variable pour stocker le fichier image choisi par l'utilisateur
     private File selectedImageFile;
 
+    public File GetAvatarFile()
+    {
+        return selectedImageFile;
+    }
+
+    public String GetUsername()
+    {
+        return chooseNameImput.getText();
+    }
+
     @FXML
-    public void initialize() {
+    public void initialize()
+    {
+        instance = this;
+
         // Installation du Tooltip
         setupTooltip();
 
@@ -75,7 +94,7 @@ public class JoinRoomController {
 
         // On n'autorise que les images
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp")
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.bmp")
         );
 
         // On récupère la fenêtre actuelle pour centrer la boîte de dialogue

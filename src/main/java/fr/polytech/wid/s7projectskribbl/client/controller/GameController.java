@@ -304,8 +304,6 @@ public class GameController {
         // Vider l'input texte
         chatInput.clear();
 
-
-
         //TODO, ENVOYER LE MESSAGE AU SERVEUR
     }
 

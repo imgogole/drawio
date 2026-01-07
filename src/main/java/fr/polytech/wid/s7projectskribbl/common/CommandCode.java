@@ -5,7 +5,9 @@ public enum CommandCode
     PING(0),
     REQUEST_PLAYER_INFO(1),
     SERVER_MESSAGE(2),
-    READY(3);
+    READY(3),
+    UPDATE_CLIENT_IMAGES(4),
+    ENTER_WAITING_ROOM(5);
 
     private final int code;
 

@@ -1,5 +1,7 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
+import fr.polytech.wid.s7projectskribbl.common.CommandCode;
+
 import java.io.IOException;
 import java.util.*;
 import java.net.*;
@@ -33,6 +35,7 @@ public class WaitForPlayersHandler extends Thread
                 else
                 {
                     handler = new PlayerHandler(client, master);
+                    handler.Out().SendCommand(CommandCode.REQUEST_PLAYER_INFO, null);
                     System.out.println("Un joueur s'est connecté.");
                 }
             }

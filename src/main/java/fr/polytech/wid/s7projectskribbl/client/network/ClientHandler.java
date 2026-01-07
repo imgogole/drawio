@@ -1,13 +1,13 @@
 package fr.polytech.wid.s7projectskribbl.client.network;
 
-import fr.polytech.wid.s7projectskribbl.client.actions.CPingAction;
-import fr.polytech.wid.s7projectskribbl.client.actions.CServerMessage;
-import fr.polytech.wid.s7projectskribbl.client.actions.ClientAction;
+import fr.polytech.wid.s7projectskribbl.client.actions.*;
 import fr.polytech.wid.s7projectskribbl.common.*;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -21,6 +21,8 @@ public class ClientHandler extends Thread
     private ClientHandlerIn inHandler;
     private ClientHandlerOut outHandler;
     private static ClientHandler instance;
+
+    private final Map<Integer, ClientImage> clientImageMap;
 
     private final Map<Integer, ClientAction> codeToAction;
     private final BlockingQueue<ClientCommandRecord> incomeCommandQueue;
@@ -42,10 +44,19 @@ public class ClientHandler extends Thread
     {
         this.incomeCommandQueue = new PriorityBlockingQueue<>();
         this.codeToAction = new HashMap<>();
+        this.clientImageMap = new HashMap<>();
         this.running = true;
 
         this.codeToAction.put(CommandCode.PING.Code(), new CPingAction());
         this.codeToAction.put(CommandCode.SERVER_MESSAGE.Code(), new CServerMessage());
+        this.codeToAction.put(CommandCode.REQUEST_PLAYER_INFO.Code(), new CPlayerInfoAction());
+        this.codeToAction.put(CommandCode.UPDATE_CLIENT_IMAGES.Code(), new CUpdateClientImages());
+        this.codeToAction.put(CommandCode.ENTER_WAITING_ROOM.Code(), new CEnterWaitingRoom());
+    }
+
+    public List<ClientImage> ClientImages()
+    {
+        return new ArrayList<>(clientImageMap.values());
     }
 
     public ClientHandlerIn In()
@@ -81,6 +92,17 @@ public class ClientHandler extends Thread
         catch (Exception e)
         {
 
+        }
+    }
+
+    /**
+     * Ajoute l'image client s'il n'existe pas.
+     */
+    public void AddIfNotExist(ClientImage image)
+    {
+        if (!clientImageMap.containsKey(image.ID()))
+        {
+            clientImageMap.put(image.ID(), image);
         }
     }
 
