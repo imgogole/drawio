@@ -190,10 +190,21 @@ public class JoinRoomController {
                     false
             );
 
+            String ipToUse;
+            int port = GameCommonMetadata.GamePort;
+            String[] ipInputSliced = IP.split(":");
 
+            ipToUse =  ipInputSliced[0];
+
+            if (ipInputSliced.length == 2)
+            {
+                port = Integer.parseInt(ipInputSliced[1]);
+            }
+
+            System.out.println("Connecting to " + ipToUse + ":" + port);
 
             ClientHandler client = ClientHandler.Singleton();
-            client.Connect(IP.trim(), GameCommonMetadata.GamePort);
+            client.Connect(ipToUse, port);
 
             if(loadingPopup != null)
             {
