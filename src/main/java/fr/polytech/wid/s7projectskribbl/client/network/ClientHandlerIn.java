@@ -39,6 +39,7 @@ public class ClientHandlerIn extends Thread
             {
                 int code = in.read();
                 if (code == -1) break;
+                if (code == 0) continue;
 
                 byte[] timestampBuf = in.readNBytes(8);
                 long timestamp = ByteBuffer.wrap(timestampBuf).order(ByteOrder.BIG_ENDIAN).getLong();

@@ -137,6 +137,18 @@ public class PromptDebugGameMaster extends Thread
                 System.out.println("Envoi d'un message à " + player.Username());
             }
         }
+        else if (action.equals("players"))
+        {
+            System.out.println("--- Joueurs (" + players.size() + ") ---");
+
+            if (!players.isEmpty())
+            {
+                for (PlayerHandler player : players)
+                {
+                    System.out.println(player.ID() + ": " + player.Username());
+                }
+            }
+        }
     }
 
     public void Close()

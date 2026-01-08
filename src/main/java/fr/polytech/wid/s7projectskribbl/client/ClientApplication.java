@@ -1,5 +1,6 @@
 package fr.polytech.wid.s7projectskribbl.client;
 
+import fr.polytech.wid.s7projectskribbl.client.network.ClientHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -22,6 +23,19 @@ public class ClientApplication extends Application
         LoadScene("JoinRoomView.fxml");
         stage.setTitle(GameCommonMetadata.GameName);
         stage.setMaximized(true);
+
+        stage.setOnCloseRequest(event ->
+        {
+            try
+            {
+                ClientHandler.Singleton().DisconnectAndStop();
+            }
+            catch (Exception e)
+            {
+                System.err.println("Erreur lors de la déconnexion : " + e.getMessage());
+            }
+            System.exit(0);
+        });
         stage.show();
     }
 

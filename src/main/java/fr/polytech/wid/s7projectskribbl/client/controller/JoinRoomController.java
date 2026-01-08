@@ -155,17 +155,12 @@ public class JoinRoomController {
             chooseNameImput.setStyle(null);
         }
 
+        roomIPinput.setStyle(null);
+
         if (IP == null || IP.trim().isEmpty())
         {
-            roomIPinput.setStyle("-fx-border-color: #e74c3c; -fx-border-width: 2px; -fx-border-radius: 13px; -fx-background-insets: 0;");
-            hasError = true;
-            errorMsg.append("You must enter a Room IP !");
+            IP = "localhost";
         }
-        else
-        {
-            roomIPinput.setStyle(null);
-        }
-
 
         if (hasError)
         {
@@ -194,7 +189,7 @@ public class JoinRoomController {
             int port = GameCommonMetadata.GamePort;
             String[] ipInputSliced = IP.split(":");
 
-            ipToUse =  ipInputSliced[0];
+            ipToUse = ipInputSliced[0];
 
             if (ipInputSliced.length == 2)
             {

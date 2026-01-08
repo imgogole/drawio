@@ -232,19 +232,21 @@ public class GameMaster
 
     public synchronized void OnPlayerDisconnect(PlayerHandler player, TerminatedConnectionType type)
     {
+        boolean removed = false;
+
         if (clients != null && clients.contains(player))
         {
-            clients.remove(player);
+            removed = clients.remove(player);
         }
         else if (waitForPlayersHandler != null)
         {
             waitForPlayersHandler.RemovePlayer(player);
+            removed = true;
         }
 
         System.out.println("Déconnexion détectée : " + player.Username() + " (ID: " + player.ID() + ")" + ", Reason: " + type);
 
         WarnDisconnectedClient(player.ID());
-
         player.TerminateConnection(type);
     }
 }

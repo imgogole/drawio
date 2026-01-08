@@ -9,7 +9,7 @@ import java.net.*;
 public class WaitForPlayersHandler extends Thread
 {
     private final ServerSocket serverSocket;
-    private final ArrayList<PlayerHandler> clients = new ArrayList<PlayerHandler>();
+    private final List<PlayerHandler> clients = Collections.synchronizedList(new ArrayList<>());
     private volatile boolean finish = false;
     private final GameMaster master;
 
@@ -71,9 +71,14 @@ public class WaitForPlayersHandler extends Thread
      * Retire un joueur de la liste d'attente de manière thread-safe.
      * Utile si un joueur se déconnecte avant que la partie ne commence.
      */
-    public synchronized void RemovePlayer(PlayerHandler player)
+    public void RemovePlayer(PlayerHandler player)
     {
-        this.clients.remove(player);
+        // La suppression est maintenant sûre.
+        // Si elle renvoie true, le joueur est bien parti.
+        boolean removed = this.clients.remove(player);
+        if (removed) {
+            System.out.println("[WaitForPlayersHandler] Joueur retiré de la liste : " + player.IP());
+        }
     }
 
     /**
@@ -82,6 +87,8 @@ public class WaitForPlayersHandler extends Thread
      */
     public ArrayList<PlayerHandler> Results()
     {
-        return clients;
+        synchronized (clients) {
+            return new ArrayList<>(clients);
+        }
     }
 }

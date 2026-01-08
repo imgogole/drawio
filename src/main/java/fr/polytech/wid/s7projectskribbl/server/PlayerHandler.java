@@ -108,7 +108,7 @@ public class PlayerHandler
             }
             if (inHandler != null)
             {
-                inHandler.join();
+                if (Thread.currentThread() != inHandler) inHandler.join();
             }
         }
         catch (IOException | InterruptedException e)
