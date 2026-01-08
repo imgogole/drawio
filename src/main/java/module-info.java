@@ -4,6 +4,7 @@ module fr.polytech.wid.s7projectskribbl
     requires javafx.fxml;
     requires com.google.gson;
     requires java.desktop;
+    requires javafx.swing;
 
     exports fr.polytech.wid.s7projectskribbl.client;
     opens fr.polytech.wid.s7projectskribbl.client to javafx.fxml;

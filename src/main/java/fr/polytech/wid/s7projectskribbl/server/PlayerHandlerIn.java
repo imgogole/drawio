@@ -5,6 +5,7 @@ import fr.polytech.wid.s7projectskribbl.common.TerminatedConnectionType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.*;
 
 /**
@@ -40,7 +41,14 @@ public class PlayerHandlerIn extends Thread
 
                 if (code == -1)
                 {
+                    handler.Master().OnPlayerDisconnect(handler, TerminatedConnectionType.CLIENT_LOGIC);
                     break;
+                }
+                if (code == 0)
+                {
+                    // On a reçu un battement de cœur, cela veut dire que le client est toujours connecté
+                    // On peut totalement ignorer la suite du code.
+                    continue;
                 }
 
                 byte[] timestampBuf = in.readNBytes(8);
@@ -68,9 +76,13 @@ public class PlayerHandlerIn extends Thread
                 handler.Master().CommandHandler().QueueIncomeCommand(this.handler, code, timestamp, payload);
             }
         }
+        catch (SocketTimeoutException e)
+        {
+            handler.Master().OnPlayerDisconnect(handler, TerminatedConnectionType.TIMEOUT);
+        }
         catch (IOException e)
         {
-            System.out.println("Connexion terminée pour " + handler.IP() + " : " + e.getMessage());
+            handler.Master().OnPlayerDisconnect(handler, TerminatedConnectionType.CLIENT_LOGIC);
         }
     }
 }

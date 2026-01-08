@@ -68,6 +68,15 @@ public class WaitForPlayersHandler extends Thread
     }
 
     /**
+     * Retire un joueur de la liste d'attente de manière thread-safe.
+     * Utile si un joueur se déconnecte avant que la partie ne commence.
+     */
+    public synchronized void RemovePlayer(PlayerHandler player)
+    {
+        this.clients.remove(player);
+    }
+
+    /**
      * Retourne la liste des clients connectés actuels.
      * @return La liste des PlayerHandler
      */

@@ -229,4 +229,22 @@ public class GameMaster
             p.Out().SendCommand(CommandCode.UPDATE_CLIENT_IMAGE, playerPayload);
         }
     }
+
+    public synchronized void OnPlayerDisconnect(PlayerHandler player, TerminatedConnectionType type)
+    {
+        if (clients != null && clients.contains(player))
+        {
+            clients.remove(player);
+        }
+        else if (waitForPlayersHandler != null)
+        {
+            waitForPlayersHandler.RemovePlayer(player);
+        }
+
+        System.out.println("Déconnexion détectée : " + player.Username() + " (ID: " + player.ID() + ")" + ", Reason: " + type);
+
+        WarnDisconnectedClient(player.ID());
+
+        player.TerminateConnection(type);
+    }
 }

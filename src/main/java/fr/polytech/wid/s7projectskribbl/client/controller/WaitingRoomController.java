@@ -12,10 +12,20 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.FlowPane;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Circle;
+import javafx.scene.paint.Color;
+import javafx.scene.image.Image;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+
+import java.awt.*;
 import java.util.List;
 
 public class WaitingRoomController {
 
+    public VBox mainContainer;
     @FXML
     private FlowPane playerListContainer;
 
@@ -80,43 +90,50 @@ public class WaitingRoomController {
         }
     }
 
-    /**
-     Génère une interface de box pour chaque joueur
-     **/
     private VBox createPlayerBox(ClientImage player) {
-        // --- Conteneur Principal  ---
-        VBox box = new VBox();
-        box.getStyleClass().add("userBox");
-        box.setAlignment(Pos.CENTER);
+        HBox userCard = new HBox();
+        userCard.setAlignment(Pos.CENTER_LEFT);
+        userCard.setSpacing(20); // Espacement augmenté
+        userCard.setPadding(new Insets(15));
+        userCard.setPrefWidth(300); // Légèrement plus large pour le confort
+        userCard.getStyleClass().add("userBox");
 
-        // Ajout du padding
-        box.setPadding(new Insets(8, 8, 8, 8));
+        // --- GAUCHE : Avatar (Rayon augmenté à 35) ---
+        Circle avatarCircle = new Circle(35);
+        avatarCircle.setStroke(Color.web("#707070"));
+        avatarCircle.setStrokeWidth(2);
 
-        // --- Label Nom du Joueur ---
+        if (player.Avatar() != null) {
+            Image fxImage = SwingFXUtils.toFXImage(player.Avatar(), null);
+            avatarCircle.setFill(new ImagePattern(fxImage));
+        } else {
+            avatarCircle.setFill(Color.GRAY);
+        }
+
+        // --- DROITE : Textes centrés ---
+        VBox textContainer = new VBox();
+        textContainer.setAlignment(Pos.CENTER);
+        HBox.setHgrow(textContainer, Priority.ALWAYS);
+        textContainer.setSpacing(5);
+
+        // Nom du joueur (Taille augmentée)
         Label nameLabel = new Label(player.Username());
-        nameLabel.getStyleClass().add("orangeText");
+        nameLabel.getStyleClass().add("playerNameLabel");
 
-        // --- Label Statut  ---
-        String statusText = player.IsReady() ? "READY" : "WAITING...";
-        Label statusLabel = new Label(statusText);
-
-
-        statusLabel.getStyleClass().add("grayText");
-
-        // on applique la statut associé à la bonne situation du joueur
-        if (player.IsReady())
-        {
-            statusLabel.getStyleClass().add("status-ready");
-        }
-        else
-        {
-            statusLabel.getStyleClass().add("status-waiting");
+        // État (Ready / Not Ready)
+        Label statusLabel = new Label();
+        if (player.IsReady()) {
+            statusLabel.setText("READY");
+            statusLabel.getStyleClass().add("status-ready-impact");
+        } else {
+            statusLabel.setText("Not ready...");
+            statusLabel.getStyleClass().add("status-waiting-italic");
         }
 
-        // Assemblage
-        box.getChildren().addAll(nameLabel, statusLabel);
+        textContainer.getChildren().addAll(nameLabel, statusLabel);
+        userCard.getChildren().addAll(avatarCircle, textContainer);
 
-        return box;
+        return new VBox(userCard);
     }
 
     private void toggleReadyState()

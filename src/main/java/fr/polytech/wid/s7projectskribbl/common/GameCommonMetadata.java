@@ -10,4 +10,8 @@ public final class GameCommonMetadata
      */
     public static final String GameName = "Projet S7 Skribbl.io";
     public static final int GamePort = 5555;
+
+    public static final int TimeoutClientSeconds = 10;
+    public static final int HeartbeatClientSeconds = 5;
+
 }

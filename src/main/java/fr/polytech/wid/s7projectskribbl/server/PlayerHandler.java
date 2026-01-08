@@ -1,5 +1,6 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
+import fr.polytech.wid.s7projectskribbl.common.GameCommonMetadata;
 import fr.polytech.wid.s7projectskribbl.common.TerminatedConnectionType;
 
 import java.awt.image.BufferedImage;
@@ -27,6 +28,7 @@ public class PlayerHandler
     public PlayerHandler(Socket clientSocket, GameMaster master) throws IOException
     {
         this.clientSocket = clientSocket;
+        this.clientSocket.setSoTimeout(GameCommonMetadata.TimeoutClientSeconds * 1000);
         this.master = master;
         this.inHandler = new PlayerHandlerIn(clientSocket, this);
         this.outHandler = new PlayerHandlerOut(clientSocket, this);
@@ -97,12 +99,11 @@ public class PlayerHandler
      */
     public void TerminateConnection(TerminatedConnectionType type)
     {
-        // TODO : Envoyer une commande "DisconnectCommand" avec le type.
-        // this.outHandler.SendCommand(new DisconnectCommand(type));
         try
         {
             if (clientSocket != null && !clientSocket.isClosed())
             {
+                // TODO : Envoyer une commande "Disconnect" avec le type.
                 clientSocket.close();
             }
             if (inHandler != null)

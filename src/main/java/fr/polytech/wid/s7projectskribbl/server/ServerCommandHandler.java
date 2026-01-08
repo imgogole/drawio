@@ -83,7 +83,6 @@ public class ServerCommandHandler extends Thread
                     if (action != null)
                     {
                         action.Execute(record.player(), record.payload());
-                        System.out.println("[CMD Received] From: " + record.player().Username() + ", Code: " + record.code() + ", Payload: " + Arrays.toString(record.payload()));
                     }
                 }
             }

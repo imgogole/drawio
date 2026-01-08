@@ -52,4 +52,17 @@ public class ClientHandlerOut
             System.err.println("Erreur d'envoi : " + e.getMessage());
         }
     }
+
+    public void Beat()
+    {
+        try
+        {
+            out.write(CommandCode.HEARTBEAT.Code());
+            out.flush();
+        }
+        catch (IOException e)
+        {
+            System.err.println("Erreur de battement de coeur : " + e.getMessage());
+        }
+    }
 }

@@ -17,6 +17,7 @@ public class ClientHandler extends Thread
     private Socket clientSocket;
     private ClientHandlerIn inHandler;
     private ClientHandlerOut outHandler;
+    private ClientHeartBeat heartBeat;
     private static ClientHandler instance;
 
     private final Map<Integer, ClientImage> clientImageMap;
@@ -147,6 +148,9 @@ public class ClientHandler extends Thread
         inHandler = new ClientHandlerIn(this, this.clientSocket);
         inHandler.start();
 
+        heartBeat = new ClientHeartBeat(this, GameCommonMetadata.HeartbeatClientSeconds);
+        heartBeat.start();
+
         outHandler = new ClientHandlerOut(this, this.clientSocket);
 
         System.out.println("Connecté au serveur [" + ip + ":" + port + "]");
@@ -161,6 +165,7 @@ public class ClientHandler extends Thread
         {
             clientSocket.close();
             inHandler.Close();
+            heartBeat.Kill();
 
             clientSocket = null;
         }
