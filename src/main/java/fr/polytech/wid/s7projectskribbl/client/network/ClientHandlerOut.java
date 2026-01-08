@@ -26,8 +26,14 @@ public class ClientHandlerOut
         return this.out;
     }
 
-    public <T extends Payload> void SendCommand(CommandCode code, T p)
+    public synchronized <T extends Payload> void SendCommand(CommandCode code, T p)
     {
+        if (code.equals(CommandCode.HEARTBEAT))
+        {
+            Beat();
+            return;
+        }
+
         try
         {
             ByteBuffer payloadBuffer = (p != null) ? p.ToBytes() : null;
@@ -53,7 +59,7 @@ public class ClientHandlerOut
         }
     }
 
-    public void Beat()
+    public synchronized void Beat()
     {
         try
         {

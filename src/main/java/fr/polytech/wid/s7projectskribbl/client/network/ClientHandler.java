@@ -148,10 +148,10 @@ public class ClientHandler extends Thread
         inHandler = new ClientHandlerIn(this, this.clientSocket);
         inHandler.start();
 
+        outHandler = new ClientHandlerOut(this, this.clientSocket);
+
         heartBeat = new ClientHeartBeat(this, GameCommonMetadata.HeartbeatClientSeconds);
         heartBeat.start();
-
-        outHandler = new ClientHandlerOut(this, this.clientSocket);
 
         System.out.println("Connecté au serveur [" + ip + ":" + port + "]");
     }
