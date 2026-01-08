@@ -44,7 +44,7 @@ public class GameController {
     @FXML private Canvas drawingCanvas;
     @FXML private VBox mainContainer;
     @FXML private VBox toolbox;
-
+    @FXML private Pane canvasWrapper;
 
     // ---- TOOLBOX BUTTONS ----
     @FXML private Button btnBrush;
@@ -68,6 +68,8 @@ public class GameController {
     @FXML private Slider sliderTaille;
     @FXML private Circle circleTailleIcone;
     @FXML private ColorPicker colorPicker;
+
+
 
 
     private GraphicsContext gc; // L'outil de dessin
@@ -145,9 +147,12 @@ public class GameController {
 
             // CAS DESSINATEUR
             updateGameState(isDrawer, WORD);
-            showRoundEnd(isDrawer, WORD, roundActuel, roundTotal, true);    //test quand tt le monde trouve
+            showRoundEnd(isDrawer, WORD, roundActuel, roundTotal, false);    //test quand tt le monde trouve
 
         });
+
+        drawingCanvas.widthProperty().bind(canvasWrapper.widthProperty());
+        drawingCanvas.heightProperty().bind(canvasWrapper.heightProperty());
     }
 
     // Configure les paramètres de base de la brush (taille, couleur)
