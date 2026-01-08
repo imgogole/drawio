@@ -2,8 +2,7 @@ package fr.polytech.wid.s7projectskribbl.server;
 
 import fr.polytech.wid.s7projectskribbl.common.CommandCode;
 import fr.polytech.wid.s7projectskribbl.common.TerminatedConnectionType;
-import fr.polytech.wid.s7projectskribbl.common.payloads.ClientImagesPayload;
-import fr.polytech.wid.s7projectskribbl.common.payloads.records.ClientImageItem;
+import fr.polytech.wid.s7projectskribbl.common.payloads.ClientImagePayload;
 
 import java.io.*;
 import java.net.*;
@@ -190,17 +189,44 @@ public class GameMaster
      */
     public void UpdateClientImages()
     {
-        List<ClientImageItem> items = new ArrayList<ClientImageItem>();
+        List<ClientImagePayload> payload = new ArrayList<ClientImagePayload>();
         for (PlayerHandler player : Clients())
         {
-            items.add(new ClientImageItem(player.ID(), player.Username(), player.Avatar(), player.IsReady()));
+            payload.add(new ClientImagePayload(player.ID(), player.Username(), player.IsReady()?2:1, player.Avatar()));
         }
 
-        ClientImagesPayload payload = new ClientImagesPayload(items);
-
         for (PlayerHandler player : Clients())
         {
-            player.Out().SendCommand(CommandCode.UPDATE_CLIENT_IMAGES, payload);
+            for (ClientImagePayload p : payload)
+            {
+                player.Out().SendCommand(CommandCode.UPDATE_CLIENT_IMAGE, p);
+            }
+        }
+    }
+
+    /**
+     * Envoie une commande de mise à jour d'un client pour tous les clients.
+     */
+    public void UpdateClientImage(PlayerHandler player)
+    {
+        ClientImagePayload playerPayload = new ClientImagePayload(player.ID(), player.Username(), player.IsReady()?2:1, player.Avatar());
+
+        for (PlayerHandler p : Clients())
+        {
+            p.Out().SendCommand(CommandCode.UPDATE_CLIENT_IMAGE, playerPayload);
+        }
+    }
+
+    /**
+     * Préviens tous les autres joueurs de la déconnexion d'un client.
+     */
+    public void WarnDisconnectedClient(int id)
+    {
+        ClientImagePayload playerPayload = new ClientImagePayload(id, null, 0, null);
+
+        for (PlayerHandler p : Clients())
+        {
+            p.Out().SendCommand(CommandCode.UPDATE_CLIENT_IMAGE, playerPayload);
         }
     }
 }

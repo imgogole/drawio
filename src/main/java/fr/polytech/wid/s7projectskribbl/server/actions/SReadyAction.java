@@ -16,8 +16,6 @@ public class SReadyAction implements ServerAction
         readyPayload.Parse(data);
 
         player.SetReady(readyPayload.Ready());
-
-        // TODO : remplacer par une méthode moins lourde
-        player.Master().UpdateClientImages();
+        player.Master().UpdateClientImage(player);
     }
 }

@@ -25,11 +25,12 @@ public class ClientHandlerIn extends Thread
         this.running = true;
     }
 
-    public void Close() throws IOException
+    public void Close()
     {
         this.running = false;
     }
 
+    @Override
     public void run()
     {
         try
@@ -37,32 +38,18 @@ public class ClientHandlerIn extends Thread
             while (running && !clientSocket.isClosed())
             {
                 int code = in.read();
-
-                if (code == -1)
-                {
-                    break;
-                }
+                if (code == -1) break;
 
                 byte[] timestampBuf = in.readNBytes(8);
-                if (timestampBuf.length < 8) break;
-
                 long timestamp = ByteBuffer.wrap(timestampBuf).order(ByteOrder.BIG_ENDIAN).getLong();
 
                 byte[] sizeBuf = in.readNBytes(4);
-                if (sizeBuf.length < 4) break;
-
                 int length = ByteBuffer.wrap(sizeBuf).order(ByteOrder.BIG_ENDIAN).getInt();
 
-                byte[] payload;
-
+                byte[] payload = new byte[0];
                 if (length > 0)
                 {
                     payload = in.readNBytes(length);
-                    if (payload.length < length) break;
-                }
-                else
-                {
-                    payload = new byte[0];
                 }
 
                 clientHandler.QueueIncomeCommand(code, timestamp, payload);
@@ -70,7 +57,12 @@ public class ClientHandlerIn extends Thread
         }
         catch (IOException e)
         {
-            System.out.println("Error ClientHandlerIn run(): " + e.getMessage());
+            System.err.println("Erreur IO ClientHandlerIn: " + e.getMessage());
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erreur: ");
+            e.printStackTrace();
         }
     }
 }

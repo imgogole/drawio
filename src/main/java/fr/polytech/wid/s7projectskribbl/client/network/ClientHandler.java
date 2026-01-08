@@ -5,10 +5,7 @@ import fr.polytech.wid.s7projectskribbl.common.*;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -50,7 +47,7 @@ public class ClientHandler extends Thread
         this.codeToAction.put(CommandCode.PING.Code(), new CPingAction());
         this.codeToAction.put(CommandCode.SERVER_MESSAGE.Code(), new CServerMessage());
         this.codeToAction.put(CommandCode.REQUEST_PLAYER_INFO.Code(), new CPlayerInfoAction());
-        this.codeToAction.put(CommandCode.UPDATE_CLIENT_IMAGES.Code(), new CUpdateClientImages());
+        this.codeToAction.put(CommandCode.UPDATE_CLIENT_IMAGE.Code(), new CUpdateClientImage());
         this.codeToAction.put(CommandCode.ENTER_WAITING_ROOM.Code(), new CEnterWaitingRoom());
     }
 
@@ -69,41 +66,65 @@ public class ClientHandler extends Thread
         return outHandler;
     }
 
+    @Override
     public void run()
     {
-        try
+        while (running)
         {
-            while (running)
+            try
             {
                 if (connected)
                 {
-                    ClientCommandRecord record = incomeCommandQueue.poll();
-                    if (record != null)
+                    ClientCommandRecord record = incomeCommandQueue.take();
+                    ClientAction action = codeToAction.get(record.code());
+                    if (action != null)
                     {
-                        ClientAction action = codeToAction.get(record.code());
-                        if (action != null)
+                        try
                         {
                             action.Execute(record.payload());
                         }
+                        catch (Exception e)
+                        {
+                            System.err.println("Erreur lors de l'exécution du code: " + record.code());
+                            e.printStackTrace();
+                        }
+                    }
+                    else
+                    {
+                        System.err.println("Code non pris en charge: " + record.code());
                     }
                 }
+                else
+                {
+                    Thread.sleep(100);
+                }
             }
-        }
-        catch (Exception e)
-        {
-
+            catch (InterruptedException e)
+            {
+                running = false;
+            }
+            catch (Exception e)
+            {
+                System.err.println("Erreur critique dans ClientHandler Loop:");
+                e.printStackTrace();
+            }
         }
     }
 
     /**
-     * Ajoute l'image client s'il n'existe pas.
+     * Ajoute ou modifie l'image client s'il n'existe pas.
      */
-    public void AddIfNotExist(ClientImage image)
+    public void AddOrUpdate(ClientImage image)
     {
-        if (!clientImageMap.containsKey(image.ID()))
-        {
-            clientImageMap.put(image.ID(), image);
-        }
+        clientImageMap.put(image.ID(), image);
+    }
+
+    /**
+     * Retire l'image client s'il existe.
+     */
+    public void Remove(int id)
+    {
+        clientImageMap.remove(id);
     }
 
     /**

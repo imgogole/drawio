@@ -12,11 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.FlowPane;
-import java.util.ArrayList;
 import java.util.List;
-
-// Importe ici ton modèle Player ou User
-// import fr.polytech.wid.s7projectskribbl.model.Player;
 
 public class WaitingRoomController {
 
@@ -57,14 +53,18 @@ public class WaitingRoomController {
             System.exit(0);
         });
 
-        UpdatePlayerList();
+        Internal_UpdatePlayerList();
     }
-
     /**
-      Méthode principale pour mettre à jour l'affichage des joueurs
-      à appeler à chaque fois que le serveur envoie une mise à jour du lobby.
+     Méthode principale pour mettre à jour l'affichage des joueurs
+     à appeler à chaque fois que le serveur envoie une mise à jour du lobby.
      **/
     public void UpdatePlayerList()
+    {
+        Platform.runLater(this::Internal_UpdatePlayerList);
+    }
+
+    private void Internal_UpdatePlayerList()
     {
         List<ClientImage> clients = ClientHandler.Singleton().ClientImages();
         playerListContainer.getChildren().clear();

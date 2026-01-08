@@ -18,14 +18,16 @@ public class CPlayerInfoAction implements ClientAction
     {
         // Server is requesting the client username and the client avatar.
         String username = JoinRoomController.Singleton().GetUsername();
-        byte[] image;
+        byte[] image = new byte[0];
 
         try
         {
             File imgFile = JoinRoomController.Singleton().GetAvatarFile();
-            BufferedImage bufferedImage = ImageIO.read(imgFile);
-
-            image = CommonUtilities.ImageToBytes(bufferedImage);
+            if (imgFile != null && imgFile.exists())
+            {
+                BufferedImage bufferedImage = ImageIO.read(imgFile);
+                image = CommonUtilities.ImageToBytes(bufferedImage);
+            }
         }
         catch (IOException e)
         {
