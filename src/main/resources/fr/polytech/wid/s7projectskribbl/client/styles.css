@@ -405,3 +405,11 @@
     -fx-text-alignment: CENTER;
     -fx-wrap-text: true;
 }
+
+/* Message de déconnexion */
+.chatDisconnect {
+    -fx-font-size: 16px;
+    -fx-text-fill: #B71C1C; /* Rouge foncé */
+    -fx-font-weight: bold;
+    -fx-font-style: italic;
+}

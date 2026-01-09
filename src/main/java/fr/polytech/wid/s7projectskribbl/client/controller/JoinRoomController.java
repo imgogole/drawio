@@ -4,6 +4,7 @@ import fr.polytech.wid.s7projectskribbl.client.ClientApplication;
 import fr.polytech.wid.s7projectskribbl.client.network.ClientHandler;
 import fr.polytech.wid.s7projectskribbl.common.GameCommonMetadata;
 import fr.polytech.wid.s7projectskribbl.client.service.PopupService;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -132,6 +133,20 @@ public class JoinRoomController {
             e.printStackTrace();
             System.err.println("Erreur chargement image : " + file.getAbsolutePath());
         }
+    }
+
+    public void JoinDisconnectionMsg()
+    {
+        Platform.runLater(() ->
+        {
+            Window currentWindow = joinButton.getScene().getWindow();
+            PopupService.showPopup(
+                    "Déconnexion",
+                    "Veuillez patienter...",
+                    currentWindow,
+                    true
+            );
+        });
     }
 
     private void handleJoin()

@@ -1,6 +1,7 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
 import fr.polytech.wid.s7projectskribbl.common.CommandCode;
+import fr.polytech.wid.s7projectskribbl.common.payloads.IdAttributionPayload;
 
 import java.io.IOException;
 import java.util.*;
@@ -12,6 +13,7 @@ public class WaitForPlayersHandler extends Thread
     private final List<PlayerHandler> clients = Collections.synchronizedList(new ArrayList<>());
     private volatile boolean finish = false;
     private final GameMaster master;
+    private Socket terminatedSocket;
 
     public WaitForPlayersHandler(ServerSocket serverSocket, GameMaster master)
     {
@@ -30,11 +32,16 @@ public class WaitForPlayersHandler extends Thread
 
                 if (finish)
                 {
+                    if (terminatedSocket != null)
+                    {
+                        terminatedSocket.close();
+                    }
                     System.out.println("Terminaison de WaitForPlayersHandler.");
                 }
                 else
                 {
                     handler = new PlayerHandler(client, master);
+                    handler.Out().SendCommand(CommandCode.ID_ATTRIBUTION, new IdAttributionPayload(handler.ID()));
                     handler.Out().SendCommand(CommandCode.REQUEST_PLAYER_INFO, null);
                     System.out.println("Un joueur s'est connecté.");
                 }
@@ -65,6 +72,14 @@ public class WaitForPlayersHandler extends Thread
     public void Finish()
     {
         finish = true;
+        try
+        {
+            terminatedSocket = new Socket("localhost", 5555);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -76,7 +91,8 @@ public class WaitForPlayersHandler extends Thread
         // La suppression est maintenant sûre.
         // Si elle renvoie true, le joueur est bien parti.
         boolean removed = this.clients.remove(player);
-        if (removed) {
+        if (removed)
+        {
             System.out.println("[WaitForPlayersHandler] Joueur retiré de la liste : " + player.IP());
         }
     }

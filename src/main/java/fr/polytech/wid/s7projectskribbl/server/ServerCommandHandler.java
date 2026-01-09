@@ -1,10 +1,7 @@
 package fr.polytech.wid.s7projectskribbl.server;
 
 import fr.polytech.wid.s7projectskribbl.common.CommandCode;
-import fr.polytech.wid.s7projectskribbl.server.actions.SPingAction;
-import fr.polytech.wid.s7projectskribbl.server.actions.SPlayerInfoRequestAction;
-import fr.polytech.wid.s7projectskribbl.server.actions.SReadyAction;
-import fr.polytech.wid.s7projectskribbl.server.actions.ServerAction;
+import fr.polytech.wid.s7projectskribbl.server.actions.*;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -27,6 +24,7 @@ public class ServerCommandHandler extends Thread
         this.codeToAction.put(CommandCode.PING.Code(), new SPingAction());
         this.codeToAction.put(CommandCode.READY.Code(), new SReadyAction());
         this.codeToAction.put(CommandCode.REQUEST_PLAYER_INFO.Code(), new SPlayerInfoRequestAction());
+        this.codeToAction.put(CommandCode.CHAT_MESSAGE_SENT.Code(), new SChatMessageReceived());
     }
 
     /**

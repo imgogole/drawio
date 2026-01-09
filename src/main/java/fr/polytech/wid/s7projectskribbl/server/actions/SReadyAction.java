@@ -17,5 +17,12 @@ public class SReadyAction implements ServerAction
 
         player.SetReady(readyPayload.Ready());
         player.Master().UpdateClientImage(player);
+        try
+        {
+            player.Master().Start();
+        }catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
     }
 }

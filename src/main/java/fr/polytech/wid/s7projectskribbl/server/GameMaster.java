@@ -68,6 +68,7 @@ public class GameMaster
     {
         return serverCommandHandler;
     }
+    public WaitForPlayersHandler WForPlayersHandler() { return waitForPlayersHandler; }
 
     /**
      * Initialise le GameMaster.
@@ -113,10 +114,23 @@ public class GameMaster
             return;
         }
 
+        boolean allReady = clients.stream().allMatch(PlayerHandler::IsReady);
+
+        if (!allReady)
+        {
+            System.out.println("Erreur: Pas tous le monde est prêt.");
+            return;
+        }
+
         this.clients = new ArrayList<PlayerHandler>(clients);
         TerminateWaitForPlayers();
 
         System.out.println("La partie a débuté.");
+
+        for (PlayerHandler player : this.clients)
+        {
+            player.Out().SendCommand(CommandCode.ENTER_GAME, null);
+        }
     }
 
     /**

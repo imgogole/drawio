@@ -1,6 +1,7 @@
 package fr.polytech.wid.s7projectskribbl.client.network;
 
 import fr.polytech.wid.s7projectskribbl.client.actions.*;
+import fr.polytech.wid.s7projectskribbl.client.controller.JoinRoomController;
 import fr.polytech.wid.s7projectskribbl.common.*;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ public class ClientHandler extends Thread
     private ClientHandlerIn inHandler;
     private ClientHandlerOut outHandler;
     private ClientHeartBeat heartBeat;
+    private int id;
     private static ClientHandler instance;
 
     private final Map<Integer, ClientImage> clientImageMap;
@@ -46,15 +48,30 @@ public class ClientHandler extends Thread
         this.running = true;
 
         this.codeToAction.put(CommandCode.PING.Code(), new CPingAction());
+        this.codeToAction.put(CommandCode.ID_ATTRIBUTION.Code(), new CIdAttribution());
         this.codeToAction.put(CommandCode.SERVER_MESSAGE.Code(), new CServerMessage());
         this.codeToAction.put(CommandCode.REQUEST_PLAYER_INFO.Code(), new CPlayerInfoAction());
         this.codeToAction.put(CommandCode.UPDATE_CLIENT_IMAGE.Code(), new CUpdateClientImage());
         this.codeToAction.put(CommandCode.ENTER_WAITING_ROOM.Code(), new CEnterWaitingRoom());
+        this.codeToAction.put(CommandCode.CHAT_MESSAGE_SENT.Code(), new CChatMessageReceived());
+        this.codeToAction.put(CommandCode.ENTER_GAME.Code(), new CEnterGame());
     }
 
     public List<ClientImage> ClientImages()
     {
         return new ArrayList<>(clientImageMap.values());
+    }
+
+    public ClientImage GetClientImage(int id)
+    {
+        return clientImageMap.get(id);
+    }
+
+    public int ID() { return this.id; }
+
+    public void SetID(int id)
+    {
+        this.id = id;
     }
 
     public ClientHandlerIn In()
@@ -179,6 +196,7 @@ public class ClientHandler extends Thread
     {
         this.Disconnect();
         this.running = false;
+        JoinRoomController.Singleton().JoinDisconnectionMsg();
     }
 
     /**

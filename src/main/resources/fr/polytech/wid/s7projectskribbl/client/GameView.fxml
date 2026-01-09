@@ -41,7 +41,7 @@
 
                     <Canvas fx:id="drawingCanvas" />
 
-                    <VBox alignment="CENTER_RIGHT" spacing="20.0" fx:id="toolbox" PickOnBounds="false">
+                    <VBox alignment="CENTER_RIGHT" spacing="20.0" fx:id="toolbox">
                         <padding>
                             <Insets right="15.0" />
                         </padding>
@@ -127,31 +127,13 @@
 
         </HBox>
 
-        <FlowPane hgap="20.0" vgap="10.0" alignment="CENTER" prefWrapLength="1000">
-            <VBox styleClass="userBox" alignment="CENTER">
-                <padding>
-                    <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                </padding>
-                <Label styleClass="orangeText" text="Dada"/>
-                <Label styleClass="grayText" text="Is Drawing..."/>
-                <HBox alignment="BASELINE_LEFT">
-                    <Label styleClass="grayText" fx:id="pointsDada" text="300"/>
-                    <Label styleClass="grayText" text=" pts"/>
-                </HBox>
-            </VBox>
-
-            <VBox styleClass="userBox" alignment="CENTER">
-                <padding>
-                    <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                </padding>
-                <Label styleClass="orangeText" text="Bruce Wayne"/>
-                <Label styleClass="grayText" text="Guessed!"/>
-                <HBox alignment="BASELINE_LEFT">
-                    <Label styleClass="grayText" fx:id="pointsWayne" text="120"/>
-                    <Label styleClass="grayText" text=" pts"/>
-                </HBox>
-            </VBox>
+        <FlowPane fx:id="playerListContainer"
+                  hgap="20.0" vgap="10.0"
+                  alignment="CENTER"
+                  prefWrapLength="1000"
+                  style="-fx-padding: 10px;">
         </FlowPane>
+
 
     </VBox>
 

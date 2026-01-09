@@ -1,5 +1,6 @@
 package fr.polytech.wid.s7projectskribbl.client.actions;
 
+import fr.polytech.wid.s7projectskribbl.client.controller.GameController;
 import fr.polytech.wid.s7projectskribbl.client.controller.WaitingRoomController;
 import fr.polytech.wid.s7projectskribbl.client.network.ClientHandler;
 import fr.polytech.wid.s7projectskribbl.client.network.ClientImage;
@@ -17,6 +18,8 @@ public class CUpdateClientImage implements ClientAction
 
         if (state == 0)
         {
+            ClientImage client = ClientHandler.Singleton().GetClientImage(payload.ID());
+            GameController.Instance().AddDisconnectionMessage(client.Username());
             ClientHandler.Singleton().Remove(payload.ID());
         }
         else

@@ -1,6 +1,9 @@
 package fr.polytech.wid.s7projectskribbl.client.controller;
 
 import fr.polytech.wid.s7projectskribbl.client.network.ClientHandler;
+import fr.polytech.wid.s7projectskribbl.client.network.ClientImage;
+import fr.polytech.wid.s7projectskribbl.common.CommandCode;
+import fr.polytech.wid.s7projectskribbl.common.payloads.ChatMessagePayload;
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
 import javafx.application.Platform;
@@ -16,6 +19,9 @@ import javafx.scene.shape.StrokeLineJoin;
 import javafx.util.Duration;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.geometry.Pos;
+
+import java.util.List;
 
 public class GameController {
 
@@ -25,6 +31,7 @@ public class GameController {
     // RADIUS
     private final CornerRadii RADIUS_ROUND = new CornerRadii(50, true); // Pour outils ronds
     private final CornerRadii RADIUS_STD = new CornerRadii(4);
+    public StackPane canvasContainer;
 
     // ---- CHAT ----
     @FXML private TextField chatInput;
@@ -38,6 +45,7 @@ public class GameController {
     @FXML private Label timer;
     @FXML private Label currentRound;
     @FXML private Label roundNumber;
+    @FXML private FlowPane playerListContainer;
 
 
     // ---- OUTILS DESSIN ----
@@ -82,11 +90,17 @@ public class GameController {
     // ON STOCKE LE MOT MYSTERE
     private String WORD;
 
+    private static GameController instance;
 
+    public static GameController Instance()
+    {
+        return instance;
+    }
 
     @FXML
     private void initialize(){
 
+        instance = this;
         // permet de cliquer au travers de la toolbox (pour atteindre le canvas)
         if (toolbox != null){
             toolbox.setPickOnBounds(false);
@@ -146,8 +160,68 @@ public class GameController {
             // CAS DESSINATEUR
             updateGameState(isDrawer, WORD);
             showRoundEnd(isDrawer, WORD, roundActuel, roundTotal, true);    //test quand tt le monde trouve
-
+            UpdatePlayerList();
         });
+    }
+
+    public void UpdatePlayerList() {
+        // On récupère la liste fraîche depuis le ClientHandler
+        List<ClientImage> clients = ClientHandler.Singleton().ClientImages();
+
+        playerListContainer.getChildren().clear();
+
+        for (ClientImage player : clients) {
+            VBox card = createGamePlayerCard(player);
+            playerListContainer.getChildren().add(card);
+        }
+    }
+
+    private VBox createGamePlayerCard(ClientImage player) {
+        VBox card = new VBox();
+
+        // --- STYLE & TAILLE FIXE ---
+        card.getStyleClass().add("userBox");
+        card.setAlignment(Pos.CENTER);
+        card.setPadding(new Insets(10));
+        card.setSpacing(5);
+
+        // Fixe la taille de la carte (Responsive mais contraint)
+        card.setPrefWidth(160);
+        card.setPrefHeight(100);
+        card.setMinWidth(160);
+        card.setMinHeight(100);
+
+        // --- PSEUDO ---
+        Label nameLabel = new Label(player.Username());
+        nameLabel.getStyleClass().add("orangeText");
+        nameLabel.setStyle("-fx-font-size: 18px;"); // Un peu plus petit pour rentrer
+
+        // --- PLACEHOLDER STATUT (Trouvé / Dessine) ---
+        // "Plus tard tu remplaceras cette condition par player.HasFoundWord()"
+        String statusText = player.IsDrawer() ? "Drawing..." : "Guessing";
+        Label statusLabel = new Label(statusText);
+        statusLabel.getStyleClass().add("grayText");
+        statusLabel.setStyle("-fx-font-size: 14px; -fx-font-style: italic;");
+
+        // --- PLACEHOLDER POINTS ---
+        HBox scoreBox = new HBox(5);
+        scoreBox.setAlignment(Pos.CENTER);
+
+        // "Plus tard tu remplaceras '0' par player.GetScore()"
+        Label pointsLabel = new Label("0");
+        pointsLabel.getStyleClass().add("whiteText");
+        pointsLabel.setStyle("-fx-font-size: 16px;");
+
+        Label ptsSuffix = new Label("pts");
+        ptsSuffix.getStyleClass().add("grayText");
+        ptsSuffix.setStyle("-fx-font-size: 14px;");
+
+        scoreBox.getChildren().addAll(pointsLabel, ptsSuffix);
+
+        // Assemblage
+        card.getChildren().addAll(nameLabel, statusLabel, scoreBox);
+
+        return card;
     }
 
     // Configure les paramètres de base de la brush (taille, couleur)
@@ -274,7 +348,8 @@ public class GameController {
 
 
     // Gère l'envoi et l'affichage des messages
-    private void initChatSystem() {
+    private void initChatSystem()
+    {
         // action sur le bouton "Chat"
         sendChat.setOnAction(e -> handleSendAction());
 
@@ -285,30 +360,58 @@ public class GameController {
                 handleSendAction();
             }
         });
-
     }
 
 
     @FXML
-    private void handleSendAction(){
-        String message = chatInput.getText().trim(); // enlève les espaces inutiles
+    private void handleSendAction()
+    {
+        String message = chatInput.getText().trim();
 
         if (message.isEmpty())
         {
             return;
         }
 
-        // Créer visuellement le message
-        addMessageToChat("Moi", message);
-
-        // Vider l'input texte
         chatInput.clear();
 
-        //TODO, ENVOYER LE MESSAGE AU SERVEUR
+        ChatMessagePayload chatMessagePayload = new ChatMessagePayload(ClientHandler.Singleton().ID(), message);
+        ClientHandler.Singleton().Out().SendCommand(CommandCode.CHAT_MESSAGE_SENT, chatMessagePayload);
     }
 
+    public void AddMessageToChat(String sender, String message)
+    {
+        Platform.runLater(() -> {
+            Internal_AddMessageToChat(sender, message);
+        });
+    }
 
-    private void addMessageToChat(String user, String text){
+    /**
+     * Ajoute un message système indiquant qu'un joueur a quitté la partie.
+     * @param username Le pseudo du joueur déconnecté.
+     */
+    public void AddDisconnectionMessage(String username)
+    {
+        Platform.runLater(() -> {
+            HBox msgBox = new HBox();
+
+            // Création du label avec le message complet
+            Label lblMsg = new Label(username + " a quitté la partie.");
+
+            // Application du style défini dans le CSS
+            lblMsg.getStyleClass().add("chatDisconnect");
+            lblMsg.setWrapText(true); // Permet le retour à la ligne si le pseudo est long
+
+            msgBox.getChildren().add(lblMsg);
+            messagesContainer.getChildren().add(msgBox);
+
+            // Auto Scroll vers le bas pour voir le message
+            scrollPaneMessages.setVvalue(1.0);
+        });
+    }
+
+    private void Internal_AddMessageToChat(String user, String text)
+    {
         HBox msgBox = new HBox(5); // espacement de 5px entre le pseudo et le message
 
         Label lblUser = new Label(user + ": ");
