@@ -52,7 +52,7 @@ public class GameController {
     @FXML private Canvas drawingCanvas;
     @FXML private VBox mainContainer;
     @FXML private VBox toolbox;
-
+    @FXML private Pane canvasWrapper;
 
     // ---- TOOLBOX BUTTONS ----
     @FXML private Button btnBrush;
@@ -162,10 +162,12 @@ public class GameController {
             showRoundEnd(isDrawer, WORD, roundActuel, roundTotal, true);    //test quand tt le monde trouve
             UpdatePlayerList();
         });
+
+        drawingCanvas.widthProperty().bind(canvasWrapper.widthProperty());
+        drawingCanvas.heightProperty().bind(canvasWrapper.heightProperty());
     }
 
     public void UpdatePlayerList() {
-        // On récupère la liste fraîche depuis le ClientHandler
         List<ClientImage> clients = ClientHandler.Singleton().ClientImages();
 
         playerListContainer.getChildren().clear();
