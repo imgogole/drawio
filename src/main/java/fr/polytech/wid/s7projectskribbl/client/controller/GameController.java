@@ -167,7 +167,8 @@ public class GameController {
         drawingCanvas.heightProperty().bind(canvasWrapper.heightProperty());
     }
 
-    public void UpdatePlayerList() {
+    public void UpdatePlayerList()
+    {
         List<ClientImage> clients = ClientHandler.Singleton().ClientImages();
 
         playerListContainer.getChildren().clear();

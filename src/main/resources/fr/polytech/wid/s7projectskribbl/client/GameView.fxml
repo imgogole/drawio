@@ -143,7 +143,6 @@
         </VBox> </HBox>
 
     <HBox spacing="20.0" alignment="CENTER">
-
         <HBox alignment="BASELINE_LEFT">
             <Label text="ROUND " styleClass="grayText" />
             <Label text="1" fx:id="currentRound" styleClass="grayText"/>
