@@ -35,5 +35,6 @@ public class CUpdateClientImage implements ClientAction
         }
 
         WaitingRoomController.Instance().UpdatePlayerList();
+        GameController.Instance().UpdatePlayerList();
     }
 }

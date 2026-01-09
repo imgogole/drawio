@@ -124,14 +124,7 @@
                         styleClass="chat-scroll-pane">
 
                 <VBox fx:id="messagesContainer" spacing="5" style="-fx-background-color: transparent;">
-                    <HBox>
-                        <Label styleClass="chatUser" text="oxfrz: "/>
-                        <Label styleClass="chatText" text="Come on man, that's too easy !"/>
-                    </HBox>
-                    <HBox>
-                        <Label styleClass="chatUser" text="oxfrz: "/>
-                        <Label styleClass="chatText" text="Come on man, that's too easy !"/>
-                    </HBox>
+
                 </VBox>
             </ScrollPane>
 
@@ -142,22 +135,22 @@
 
         </VBox> </HBox>
 
-    <HBox spacing="20.0" alignment="CENTER">
-        <HBox alignment="BASELINE_LEFT">
-            <Label text="ROUND " styleClass="grayText" />
-            <Label text="1" fx:id="currentRound" styleClass="grayText"/>
-            <Label text="/" styleClass="grayText"/>
-            <Label text="5" fx:id="roundNumber" styleClass="grayText"/>
-        </HBox>
+        <HBox spacing="20.0" alignment="CENTER">
+            <HBox alignment="BASELINE_LEFT">
+                <Label text="ROUND " styleClass="grayText" />
+                <Label text="1" fx:id="currentRound" styleClass="grayText"/>
+                <Label text="/" styleClass="grayText"/>
+                <Label text="5" fx:id="roundNumber" styleClass="grayText"/>
+            </HBox>
 
-        <FlowPane fx:id="playerListContainer"
-                  hgap="20.0" vgap="10.0"
-                  alignment="CENTER"
-                  prefWrapLength="1000"
-                  style="-fx-padding: 10px;">
-        </FlowPane>
-    </HBox>
-</VBox>
+            <FlowPane fx:id="playerListContainer"
+                      hgap="20.0" vgap="10.0"
+                      alignment="CENTER"
+                      prefWrapLength="1000"
+                      style="-fx-padding: 10px;">
+            </FlowPane>
+        </HBox>
+    </VBox>
 
     <Button StackPane.alignment="TOP_RIGHT" fx:id="btnQuit">
         <StackPane.margin>
