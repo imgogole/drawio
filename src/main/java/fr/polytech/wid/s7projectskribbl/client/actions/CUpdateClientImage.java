@@ -34,7 +34,7 @@ public class CUpdateClientImage implements ClientAction
             ClientHandler.Singleton().AddOrUpdate(clientImage);
         }
 
-        WaitingRoomController.Instance().UpdatePlayerList();
-        GameController.Instance().UpdatePlayerList();
+        if (WaitingRoomController.Instance() != null) WaitingRoomController.Instance().UpdatePlayerList();
+        if (GameController.Instance() != null) GameController.Instance().UpdatePlayerList();
     }
 }

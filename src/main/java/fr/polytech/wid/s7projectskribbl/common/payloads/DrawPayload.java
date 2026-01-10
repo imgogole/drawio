@@ -9,7 +9,8 @@ public class DrawPayload extends Payload
     {
         START,
         DRAG,
-        FILL
+        FILL,
+        CLEAR
     }
 
     private DrawAction action;

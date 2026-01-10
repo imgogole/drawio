@@ -68,7 +68,6 @@ public class PromptDebugGameMaster extends Thread
 
     private void Execute(String action, ArrayList<String> args)
     {
-        System.out.println("Commande executée : " + action + " " + String.join(" ", args));
         ArrayList<PlayerHandler> players = gameMaster.Clients();
         if (action.equals("kick"))
         {

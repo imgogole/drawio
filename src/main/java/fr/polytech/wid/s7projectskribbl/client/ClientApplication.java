@@ -19,7 +19,7 @@ public class ClientApplication extends Application
     public void start(Stage primaryStage) throws IOException
     {
         stage = primaryStage;
-        LoadScene("GameView.fxml");
+        LoadScene("JoinRoomView.fxml");
         stage.setTitle(GameCommonMetadata.GameName);
         stage.setMaximized(true);
 

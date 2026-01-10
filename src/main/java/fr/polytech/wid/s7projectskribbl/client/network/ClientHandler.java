@@ -55,6 +55,7 @@ public class ClientHandler extends Thread
         this.codeToAction.put(CommandCode.ENTER_WAITING_ROOM.Code(), new CEnterWaitingRoom());
         this.codeToAction.put(CommandCode.CHAT_MESSAGE_SENT.Code(), new CChatMessageReceived());
         this.codeToAction.put(CommandCode.ENTER_GAME.Code(), new CEnterGame());
+        this.codeToAction.put(CommandCode.DRAW_ACTION.Code(), new CDrawAction());
     }
 
     public List<ClientImage> ClientImages()

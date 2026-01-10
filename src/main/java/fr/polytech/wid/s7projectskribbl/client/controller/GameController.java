@@ -4,6 +4,7 @@ import fr.polytech.wid.s7projectskribbl.client.network.ClientHandler;
 import fr.polytech.wid.s7projectskribbl.client.network.ClientImage;
 import fr.polytech.wid.s7projectskribbl.common.CommandCode;
 import fr.polytech.wid.s7projectskribbl.common.payloads.ChatMessagePayload;
+import fr.polytech.wid.s7projectskribbl.common.payloads.DrawPayload;
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
 import javafx.application.Platform;
@@ -24,8 +25,13 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.geometry.Pos;
 import javafx.scene.shape.Rectangle;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import javafx.animation.AnimationTimer;
+import fr.polytech.wid.s7projectskribbl.common.payloads.DrawPayload;
 
-public class GameController {
+public class GameController
+{
 
     // COULEUR DU BOUTON ACTIF
     private final String ACTIVE_COLOR_STYLE = "-fx-background-color: #e59700;";
@@ -78,6 +84,9 @@ public class GameController {
     @FXML private Slider sliderTaille;
     @FXML private Circle circleTailleIcone;
     @FXML private ColorPicker colorPicker;
+
+    private final Queue<DrawPayload> drawQueue = new ConcurrentLinkedQueue<>();
+    private AnimationTimer drawingLoop;
 
 
     private static final double BASE_WIDTH = 1280.0;
@@ -142,17 +151,13 @@ public class GameController {
 
         Platform.runLater(() -> {
 
-            if(mysteryWord != null)
+            if (mysteryWord != null)
             {
                 WORD = mysteryWord.getText();
-
             }
 
             applyAnimations();
-
-            // On définit le pinceau comme actif au démarrage
             setActiveTool(btnBrush);
-
 
             // --- SIMULATION POUR LE TEST ---
 
@@ -167,14 +172,90 @@ public class GameController {
 
             // CAS DESSINATEUR
             updateGameState(isDrawer, WORD);
-            showRoundEnd(isDrawer, WORD, roundActuel, roundTotal, true);    //test quand tt le monde trouve
+            //showRoundEnd(isDrawer, WORD, roundActuel, roundTotal, true);    //test quand tt le monde trouve
             UpdatePlayerList();
         });
 
-
+        startDrawingLoop();
         initResponsiveCanvas();
     }
 
+    private void startDrawingLoop() {
+        drawingLoop = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                processDrawQueue();
+            }
+        };
+        drawingLoop.start();
+    }
+
+    private void processDrawQueue() {
+        while (!drawQueue.isEmpty()) {
+            DrawPayload payload = drawQueue.poll(); // Récupère et retire l'élément
+            if (payload != null) {
+                Internal_ApplyDrawAction(payload);
+            }
+        }
+    }
+
+    public void ApplyDrawAction(DrawPayload payload) {
+        if (payload != null) {
+            drawQueue.add(payload);
+        }
+    }
+
+    private void Internal_ApplyDrawAction(DrawPayload payload) {
+        if (gc == null) return;
+
+        // 1. Configuration du contexte graphique
+        try {
+            Color color = Color.web(payload.Color());
+            gc.setStroke(color);
+            gc.setFill(color);
+        } catch (Exception e) {
+            gc.setStroke(Color.BLACK);
+        }
+
+        gc.setLineWidth(payload.Size());
+
+        double sX = toScreenX(payload.X());
+        double sY = toScreenY(payload.Y());
+
+        // 3. Exécution de l'action
+        switch (payload.Action())
+        {
+            case START:
+                gc.beginPath();
+                gc.moveTo(sX, sY);
+                gc.stroke(); // Point
+                break;
+
+            case DRAG:
+                gc.lineTo(sX, sY);
+                gc.stroke();
+                break;
+
+            case FILL:
+                // Appel à votre algorithme de remplissage
+                // BucketFill(sX, sY, (Color) gc.getStroke());
+                // Pour l'instant, on fait un remplissage simple si BucketFill n'est pas prêt :
+                gc.fillRect(0, 0, drawingCanvas.getWidth(), drawingCanvas.getHeight());
+                break;
+            case CLEAR:
+                fillCanvasWithWhite();
+                break;
+        }
+    }
+
+    // --- Méthodes de conversion nécessaires si pas déjà présentes ---
+    private double toScreenX(double virtualX) {
+        return virtualX * (drawingCanvas.getWidth() / BASE_WIDTH);
+    }
+
+    private double toScreenY(double virtualY) {
+        return virtualY * (drawingCanvas.getHeight() / BASE_HEIGHT);
+    }
 
     private void initResponsiveCanvas() {
         canvasWrapper.prefWidthProperty().bind(canvasContainer.widthProperty());
@@ -194,7 +275,8 @@ public class GameController {
     }
 
     // Permet de garder le format 16/9
-    private void fitCanvas() {
+    private void fitCanvas()
+    {
         double availableWidth = canvasWrapper.getWidth();
         double availableHeight = canvasWrapper.getHeight();
 
@@ -208,7 +290,6 @@ public class GameController {
         canvasScaler.setScaleX(scaleFactor);
         canvasScaler.setScaleY(scaleFactor);
 
-        // centre la zone de dessin
         canvasScaler.setLayoutX((availableWidth - BASE_WIDTH) / 2);
         canvasScaler.setLayoutY((availableHeight - BASE_HEIGHT) / 2);
     }
@@ -304,38 +385,70 @@ public class GameController {
     }
 
     // Gère les événements Souris sur le Canvas
-    private void initDrawingEvents(){
-        // nouveau tracé quand la souris est cliquée
+// Gère les événements Souris sur le Canvas
+    private void initDrawingEvents() {
+        // 1. CLIC SOURIS (Début du tracé)
         drawingCanvas.setOnMousePressed(e -> {
+            if (!isDrawer) return;
 
-            // Ne peut pas dessiner si l'on est pas le dessinateur
-            if(!isDrawer)
-            {
-                return;
-            }
-
+            // Dessin local (Feedback immédiat)
             gc.beginPath();
             gc.moveTo(e.getX(), e.getY());
             gc.stroke();
+
+            // Préparation et envoi au serveur
+            sendDrawCommand(DrawPayload.DrawAction.START, e.getX(), e.getY());
         });
 
-        // Dessine quand la souris est glissée
+        // 2. GLISSEMENT SOURIS (Continuité du trait)
         drawingCanvas.setOnMouseDragged(e -> {
+            if (!isDrawer) return;
 
-            if(!isDrawer)
-            {
-                return;
-            }
-
+            // Dessin local
             gc.lineTo(e.getX(), e.getY());
             gc.stroke();
 
-
-            // TODO , il faut envoyer les coordonnées au serveur
-
+            // Préparation et envoi au serveur
+            sendDrawCommand(DrawPayload.DrawAction.DRAG, e.getX(), e.getY());
         });
+    }
 
+    /**
+     * Méthode utilitaire pour construire et envoyer le paquet de dessin.
+     */
+    private void sendDrawCommand(DrawPayload.DrawAction action, double mouseX, double mouseY) {
+        // Conversion Coordonnées Écran -> Virtuel (1280x720)
+        double vX = toVirtualX(mouseX);
+        double vY = toVirtualY(mouseY);
 
+        // Récupération Taille & Couleur
+        double size = sliderTaille.getValue();
+        String hexColor = toHexString((Color) gc.getStroke());
+
+        // Création du Payload
+        DrawPayload payload = new DrawPayload(action, vX, vY, hexColor, size);
+
+        // Envoi
+        ClientHandler.Singleton().Out().SendCommand(CommandCode.DRAW_ACTION, payload);
+    }
+
+    // --- FONCTIONS UTILITAIRES A AJOUTER A LA FIN DE LA CLASSE ---
+
+    private double toVirtualX(double screenX) {
+        if (drawingCanvas.getWidth() == 0) return 0;
+        return screenX * (BASE_WIDTH / drawingCanvas.getWidth());
+    }
+
+    private double toVirtualY(double screenY) {
+        if (drawingCanvas.getHeight() == 0) return 0;
+        return screenY * (BASE_HEIGHT / drawingCanvas.getHeight());
+    }
+
+    private String toHexString(Color c) {
+        return String.format("#%02X%02X%02X",
+                (int) (c.getRed() * 255),
+                (int) (c.getGreen() * 255),
+                (int) (c.getBlue() * 255));
     }
 
     // Gère les boutons de la toolbox
@@ -382,9 +495,8 @@ public class GameController {
         // --- BOUTON CLEAR ---
         btnClear.setOnAction(e -> {
             fillCanvasWithWhite();
+            sendDrawCommand(DrawPayload.DrawAction.CLEAR, 0, 0);
         });
-
-
     }
 
     // Change visuellement le bouton actif
