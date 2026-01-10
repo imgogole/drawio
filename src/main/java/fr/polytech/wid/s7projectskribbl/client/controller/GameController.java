@@ -14,7 +14,6 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
@@ -115,9 +114,6 @@ public class GameController {
         // Initialisation du gc
         // On récupère l'outil de dessin du canvas
         gc = drawingCanvas.getGraphicsContext2D();
-
-        fillCanvasWithWhite();
-
         initDrawingSettings();
         initDrawingEvents();
 
@@ -213,19 +209,9 @@ public class GameController {
         canvasScaler.setLayoutY((availableHeight - BASE_HEIGHT) / 2);
     }
 
-    // Colore le canvas en blanc
-    private void fillCanvasWithWhite() {
+    public void UpdatePlayerList() { Platform.runLater(this::Internal_UpdatePlayerList); }
 
-        Paint oldFill = gc.getFill();
-
-        gc.setFill(Color.WHITE);
-
-        gc.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
-
-        gc.setFill(oldFill);
-    }
-
-    public void UpdatePlayerList()
+    private void Internal_UpdatePlayerList()
     {
         List<ClientImage> clients = ClientHandler.Singleton().ClientImages();
 
@@ -378,7 +364,8 @@ public class GameController {
 
         // --- BOUTON CLEAR ---
         btnClear.setOnAction(e -> {
-            fillCanvasWithWhite();
+            // Efface tout le rectangle du canvas
+            gc.clearRect(0, 0, drawingCanvas.getWidth(), drawingCanvas.getHeight());
         });
 
 
@@ -682,7 +669,7 @@ public class GameController {
     {
         System.out.println("Relancement de la partie...");
         hideRoundEnd();
-        fillCanvasWithWhite();
+        gc.clearRect(0,0,drawingCanvas.getWidth(), drawingCanvas.getHeight());
         messagesContainer.getChildren().clear();
 
         if (currentRound != null)
