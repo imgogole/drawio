@@ -9,6 +9,7 @@ import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Group;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
@@ -20,7 +21,7 @@ import javafx.util.Duration;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.geometry.Pos;
-
+import javafx.scene.shape.Rectangle;
 import java.util.List;
 
 public class GameController {
@@ -40,7 +41,6 @@ public class GameController {
     @FXML private Button sendChat;
 
     // ---- INFO JEU ----
-    @FXML private Label statusLabel;            //présent dans le prototype mais peut être à enlever
     @FXML private Label mysteryWord;
     @FXML private Label timer;
     @FXML private Label currentRound;
@@ -53,6 +53,7 @@ public class GameController {
     @FXML private VBox mainContainer;
     @FXML private VBox toolbox;
     @FXML private Pane canvasWrapper;
+    @FXML private Group canvasScaler;
 
     // ---- TOOLBOX BUTTONS ----
     @FXML private Button btnBrush;
@@ -77,6 +78,9 @@ public class GameController {
     @FXML private Circle circleTailleIcone;
     @FXML private ColorPicker colorPicker;
 
+
+    private static final double BASE_WIDTH = 1280.0;
+    private static final double BASE_HEIGHT = 720.0;
 
     private GraphicsContext gc; // L'outil de dessin
 
@@ -163,8 +167,46 @@ public class GameController {
             Internal_UpdatePlayerList();
         });
 
-        drawingCanvas.widthProperty().bind(canvasWrapper.widthProperty());
-        drawingCanvas.heightProperty().bind(canvasWrapper.heightProperty());
+
+        initResponsiveCanvas();
+    }
+
+
+    private void initResponsiveCanvas() {
+        canvasWrapper.prefWidthProperty().bind(canvasContainer.widthProperty());
+        canvasWrapper.prefHeightProperty().bind(canvasContainer.heightProperty());
+
+        Rectangle clipRect = new Rectangle();
+
+        clipRect.widthProperty().bind(canvasWrapper.widthProperty());
+        clipRect.heightProperty().bind(canvasWrapper.heightProperty());
+
+        canvasWrapper.setClip(clipRect);
+
+        canvasWrapper.widthProperty().addListener((obs, oldVal, newVal) -> fitCanvas());
+        canvasWrapper.heightProperty().addListener((obs, oldVal, newVal) -> fitCanvas());
+
+        fitCanvas();
+    }
+
+    // Permet de garder le format 16/9
+    private void fitCanvas() {
+        double availableWidth = canvasWrapper.getWidth();
+        double availableHeight = canvasWrapper.getHeight();
+
+        if (availableWidth == 0 || availableHeight == 0) return;
+
+        double scaleX = availableWidth / BASE_WIDTH;
+        double scaleY = availableHeight / BASE_HEIGHT;
+
+        double scaleFactor = Math.min(scaleX, scaleY);
+
+        canvasScaler.setScaleX(scaleFactor);
+        canvasScaler.setScaleY(scaleFactor);
+
+        // centre la zone de dessin
+        canvasScaler.setLayoutX((availableWidth - BASE_WIDTH) / 2);
+        canvasScaler.setLayoutY((availableHeight - BASE_HEIGHT) / 2);
     }
 
     public void UpdatePlayerList() { Platform.runLater(this::Internal_UpdatePlayerList); }
