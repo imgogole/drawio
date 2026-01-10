@@ -160,14 +160,16 @@ public class GameController {
             // CAS DESSINATEUR
             updateGameState(isDrawer, WORD);
             showRoundEnd(isDrawer, WORD, roundActuel, roundTotal, true);    //test quand tt le monde trouve
-            UpdatePlayerList();
+            Internal_UpdatePlayerList();
         });
 
         drawingCanvas.widthProperty().bind(canvasWrapper.widthProperty());
         drawingCanvas.heightProperty().bind(canvasWrapper.heightProperty());
     }
 
-    public void UpdatePlayerList()
+    public void UpdatePlayerList() { Platform.runLater(this::Internal_UpdatePlayerList); }
+
+    private void Internal_UpdatePlayerList()
     {
         List<ClientImage> clients = ClientHandler.Singleton().ClientImages();
 
