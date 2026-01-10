@@ -33,10 +33,12 @@
                 <Label text="0:42" fx:id="timer" styleClass="orangeText"/>
             </HBox>
 
-            <StackPane fx:id="canvasContainer" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10px;">
+            <StackPane fx:id="canvasContainer" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10px; -fx-border-color: #cccccc; -fx-border-radius: 10px;">
 
-                <Pane fx:id="canvasWrapper" maxWidth="Infinity" maxHeight="Infinity">
-                    <Canvas fx:id="drawingCanvas" />
+                <Pane fx:id="canvasWrapper" >
+                    <Group fx:id="canvasScaler">
+                        <Canvas fx:id="drawingCanvas" width="1280" height="720" />
+                    </Group>
                 </Pane>
 
                 <VBox alignment="CENTER_RIGHT" spacing="20.0" fx:id="toolbox" StackPane.alignment="CENTER_RIGHT" pickOnBounds="false">
