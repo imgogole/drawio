@@ -33,7 +33,13 @@
                 <Label text="0:42" fx:id="timer" styleClass="orangeText"/>
             </HBox>
 
-            <StackPane fx:id="canvasContainer" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10px; -fx-border-color: #cccccc; -fx-border-radius: 10px;">
+            <StackPane fx:id="canvasContainer" VBox.vgrow="ALWAYS"
+                       style="-fx-background-color: #7a7a7a;
+                  -fx-background-size: cover;
+                  -fx-background-position: center;
+                  -fx-background-radius: 10px;
+                  -fx-border-color: #cccccc;
+                  -fx-border-radius: 10px;">
 
                 <Pane fx:id="canvasWrapper" >
                     <Group fx:id="canvasScaler">
