@@ -13,14 +13,13 @@ import fr.polytech.wid.s7projectskribbl.common.*;
 
 public class ClientApplication extends Application
 {
-
     private static Stage stage;
 
     @Override
     public void start(Stage primaryStage) throws IOException
     {
         stage = primaryStage;
-        LoadScene("JoinRoomView.fxml");
+        LoadScene("GameView.fxml");
         stage.setTitle(GameCommonMetadata.GameName);
         stage.setMaximized(true);
 
