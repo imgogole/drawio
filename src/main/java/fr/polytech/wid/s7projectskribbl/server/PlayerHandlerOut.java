@@ -29,7 +29,7 @@ public class PlayerHandlerOut
         return this.out;
     }
 
-    public <T extends Payload> void SendCommand(CommandCode code, T p)
+    public synchronized <T extends Payload> void SendCommand(CommandCode code, T p)
     {
         try
         {
@@ -53,6 +53,33 @@ public class PlayerHandlerOut
         catch (IOException e)
         {
             System.err.println("Erreur d'envoi : " + e.getMessage());
+        }
+    }
+
+    public synchronized void SendCommandRawPayload(CommandCode code, byte[] rawPayload)
+    {
+        try
+        {
+            long timestamp = System.currentTimeMillis();
+            int payloadSize = (rawPayload != null) ? rawPayload.length : 0;
+
+            ByteBuffer message = ByteBuffer.allocate(Byte.BYTES + Long.BYTES + Integer.BYTES + payloadSize);
+
+            message.put((byte)(code.Code()));
+            message.putLong(timestamp);
+            message.putInt(payloadSize);
+
+            if (rawPayload != null)
+            {
+                message.put(rawPayload);
+            }
+
+            out.write(message.array(), 0, message.position());
+            out.flush();
+        }
+        catch (IOException e)
+        {
+            System.err.println("Erreur d'envoi Raw : " + e.getMessage());
         }
     }
 }

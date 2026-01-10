@@ -13,7 +13,6 @@ import fr.polytech.wid.s7projectskribbl.common.*;
 
 public class ClientApplication extends Application
 {
-
     private static Stage stage;
 
     @Override
