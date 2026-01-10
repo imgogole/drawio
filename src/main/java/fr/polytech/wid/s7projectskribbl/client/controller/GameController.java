@@ -14,6 +14,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
@@ -114,6 +115,9 @@ public class GameController {
         // Initialisation du gc
         // On récupère l'outil de dessin du canvas
         gc = drawingCanvas.getGraphicsContext2D();
+
+        fillCanvasWithWhite();
+
         initDrawingSettings();
         initDrawingEvents();
 
@@ -207,6 +211,19 @@ public class GameController {
         // centre la zone de dessin
         canvasScaler.setLayoutX((availableWidth - BASE_WIDTH) / 2);
         canvasScaler.setLayoutY((availableHeight - BASE_HEIGHT) / 2);
+    }
+
+
+    // Colore le canvas en blanc
+    private void fillCanvasWithWhite() {
+
+        Paint oldFill = gc.getFill();
+
+        gc.setFill(Color.WHITE);
+
+        gc.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
+
+        gc.setFill(oldFill);
     }
 
     public void UpdatePlayerList() { Platform.runLater(this::Internal_UpdatePlayerList); }
@@ -364,8 +381,7 @@ public class GameController {
 
         // --- BOUTON CLEAR ---
         btnClear.setOnAction(e -> {
-            // Efface tout le rectangle du canvas
-            gc.clearRect(0, 0, drawingCanvas.getWidth(), drawingCanvas.getHeight());
+            fillCanvasWithWhite();
         });
 
 
@@ -669,7 +685,7 @@ public class GameController {
     {
         System.out.println("Relancement de la partie...");
         hideRoundEnd();
-        gc.clearRect(0,0,drawingCanvas.getWidth(), drawingCanvas.getHeight());
+        fillCanvasWithWhite();
         messagesContainer.getChildren().clear();
 
         if (currentRound != null)
