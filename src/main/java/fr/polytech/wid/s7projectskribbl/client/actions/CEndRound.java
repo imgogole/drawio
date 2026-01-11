@@ -30,5 +30,6 @@ public class CEndRound implements ClientAction
             scoresForUI.add(new GameController.PlayerRoundScore(username, info.GainedPoints()));
         }
         GameController.Instance().ShowEndRound(payload.WordToGuess(), scoresForUI, true);
+        GameController.Instance().UpdatePlayerList();
     }
 }

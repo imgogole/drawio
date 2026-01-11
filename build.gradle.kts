@@ -28,7 +28,7 @@ tasks.withType<JavaCompile> {
 
 application {
     mainModule.set("fr.polytech.wid.s7projectskribbl")
-    mainClass.set("fr.polytech.wid.s7projectskribbl.client.ClientApplication")
+    mainClass.set("fr.polytech.wid.s7projectskribbl.client.Launcher")
 }
 
 javafx {
