@@ -16,5 +16,13 @@ public final class GameCommonMetadata
 
     public static final int TOTAL_ROUND = 5;
     public static final float ROUND_TIME = 90.0f;
-    public static final int NEAR_TO_WORD = 2;
+    public static int Tolerance(int length)
+    {
+        int tolerance = 2;
+        if (length <= 3)
+        {
+            tolerance = 1;
+        }
+        return tolerance;
+    }
 }

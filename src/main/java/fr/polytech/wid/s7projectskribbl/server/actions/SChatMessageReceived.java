@@ -57,7 +57,7 @@ public class SChatMessageReceived implements ServerAction
                 p.Out().SendCommand(CommandCode.SERVER_MESSAGE, successMsg);
             }
         }
-        else if (distance <= GameCommonMetadata.NEAR_TO_WORD)
+        else if (distance <= GameCommonMetadata.Tolerance(logic.ChoosenWord().length()))
         {
             ServerMessagePayload closeMsg = new ServerMessagePayload(
                     "'" + msg + "' is close!",
