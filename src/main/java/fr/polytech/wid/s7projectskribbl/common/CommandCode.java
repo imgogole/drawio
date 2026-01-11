@@ -14,7 +14,8 @@ public enum CommandCode
     CHAT_MESSAGE_SENT(9),
     DRAW_ACTION(10),
     NT_DECISION(11),
-    NT_BEGIN(12)
+    NT_BEGIN(12),
+    END_ROUND_RESUME(13)
     ;
 
     private final int code;

@@ -25,6 +25,8 @@ public class PlayerHandler
     private int id;
     private static int currentId = 0;
 
+    private int score;
+
     public PlayerHandler(Socket clientSocket, GameMaster master) throws IOException
     {
         this.clientSocket = clientSocket;
@@ -36,6 +38,7 @@ public class PlayerHandler
         this.username = null;
         this.ready = false;
         this.id = currentId++;
+        this.score = 0;
     }
 
     public String IP()
@@ -66,6 +69,16 @@ public class PlayerHandler
     public String Username()
     {
         return username == null ? "[Unnamed Player: " + clientSocket.getInetAddress().getHostAddress() + "]" : username;
+    }
+
+    public int Score()
+    {
+        return score;
+    }
+
+    public void AddScore(int toAdd)
+    {
+        this.score += toAdd;
     }
 
     public void SetUsername(String username)

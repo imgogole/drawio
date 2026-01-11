@@ -2,6 +2,7 @@ package fr.polytech.wid.s7projectskribbl.server;
 
 import fr.polytech.wid.s7projectskribbl.common.CommandCode;
 import fr.polytech.wid.s7projectskribbl.common.GameCommonMetadata;
+import fr.polytech.wid.s7projectskribbl.common.payloads.EndRoundPayload;
 import fr.polytech.wid.s7projectskribbl.common.payloads.NTBeginPayload;
 import fr.polytech.wid.s7projectskribbl.common.payloads.NTDecisionPayload;
 
@@ -28,6 +29,7 @@ public class GameLogic extends Thread
 
     private volatile boolean roundRunning;
     private final Set<Integer> playersWhoFoundWord = new HashSet<>();
+    private final Map<Integer, Long> playerFindTimes = new HashMap<>();
     private long roundStartTime;
 
     public GameLogic(GameMaster master)
@@ -99,9 +101,6 @@ public class GameLogic extends Thread
         return canDraw && drawer != null && player.ID() == this.drawer.ID();
     }
 
-    /**
-     * Appelé par SChatMessageReceived quand un joueur trouve le mot.
-     */
     public synchronized void OnPlayerFoundWord(PlayerHandler player)
     {
         if (!roundRunning || drawer == null) return;
@@ -111,6 +110,8 @@ public class GameLogic extends Thread
         if (!playersWhoFoundWord.contains(player.ID()))
         {
             playersWhoFoundWord.add(player.ID());
+            playerFindTimes.put(player.ID(), System.currentTimeMillis());
+
             System.out.println(player.Username() + " a trouvé le mot !");
 
             int totalGuessers = Math.max(0, master.Clients().size() - 1);
@@ -123,9 +124,6 @@ public class GameLogic extends Thread
         }
     }
 
-    /**
-     * Appelé par GameMaster lors d'une déconnexion.
-     */
     public synchronized void OnPlayerDisconnected(PlayerHandler player)
     {
         if (!roundRunning) return;
@@ -137,10 +135,6 @@ public class GameLogic extends Thread
         }
         else
         {
-            // Si un guesser part, on vérifie si les restants ont tous trouvé
-            // Note: master.Clients() contient peut-être encore le joueur ou non selon le timing de l'appel
-            // On recalcule le nombre de guessers restants (hors le joueur qui part et le dessinateur)
-
             int currentClientCount = master.Clients().size();
             if (master.Clients().contains(player))
             {
@@ -150,6 +144,7 @@ public class GameLogic extends Thread
             int totalGuessers = Math.max(0, currentClientCount - 1);
 
             playersWhoFoundWord.remove(player.ID());
+            playerFindTimes.remove(player.ID());
 
             if (playersWhoFoundWord.size() >= totalGuessers && totalGuessers > 0)
             {
@@ -162,7 +157,13 @@ public class GameLogic extends Thread
     @Override
     public void run()
     {
-        try { Thread.sleep(100); } catch (InterruptedException e) {}
+        try
+        {
+            Thread.sleep(100);
+        }
+        catch (InterruptedException e)
+        {
+        }
 
         while (round <= TOTAL_ROUND)
         {
@@ -212,7 +213,14 @@ public class GameLogic extends Thread
                         drawer = null;
                         break;
                     }
-                    try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
+                    try
+                    {
+                        Thread.sleep(100);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
 
                 if (drawer == null)
@@ -235,32 +243,70 @@ public class GameLogic extends Thread
                 this.canDraw = true;
                 this.roundRunning = true;
                 this.playersWhoFoundWord.clear();
+                this.playerFindTimes.clear();
                 this.roundStartTime = System.currentTimeMillis();
 
                 long durationMs = (long)(GameCommonMetadata.ROUND_TIME * 1000);
 
                 while (roundRunning && (System.currentTimeMillis() - roundStartTime < durationMs))
                 {
-                    try { Thread.sleep(100); } catch (InterruptedException e) {}
+                    try
+                    {
+                        Thread.sleep(100);
+                    }
+                    catch (InterruptedException e)
+                    {
+                    }
                 }
 
                 this.canDraw = false;
                 this.roundRunning = false;
 
-                System.out.println("Fin du tour. Envoi des résultats...");
+                System.out.println("Fin du tour. Calcul et envoi des résultats...");
 
-                // TODO : Envoyer la commande END_ROUND_RESUME
-                // Créer un payload Map<Integer, Integer> (ID -> Points Gagnés ce tour)
-                // Calculer les points ici :
-                // - Si ID dans playersWhoFoundWord : points basés sur (TempsTrouvé - roundStartTime) et ordre d'arrivée
-                // - Si ID == Drawer : points basés sur le nombre de joueurs ayant trouvé
-                // master.UpdateClients(CommandCode.END_ROUND_RESUME, payload);
+                List<EndRoundPayload.PlayerScoreInfo> scoresInfo = new ArrayList<>();
+                int drawerPoints = 0;
+
+                if (drawer != null && master.Clients().contains(drawer))
+                {
+                    drawerPoints = playersWhoFoundWord.size() * 50;
+                    drawer.AddScore(drawerPoints);
+                }
+
+                for (PlayerHandler p : master.Clients())
+                {
+                    int gained = 0;
+
+                    if (drawer != null && p.ID() == drawer.ID())
+                    {
+                        gained = drawerPoints;
+                    }
+                    else if (playersWhoFoundWord.contains(p.ID()))
+                    {
+                        long timeTaken = playerFindTimes.getOrDefault(p.ID(), roundStartTime) - roundStartTime;
+                        float ratio = 1.0f - ((float)timeTaken / durationMs);
+                        gained = (int)(ratio * 500);
+                        if (gained < 50) gained = 50;
+
+                        p.AddScore(gained);
+                    }
+
+                    scoresInfo.add(new EndRoundPayload.PlayerScoreInfo(p.ID(), gained, p.Score()));
+                }
+
+                EndRoundPayload endPayload = new EndRoundPayload(chosenWord, scoresInfo);
+                for (PlayerHandler p : master.Clients())
+                {
+                    p.Out().SendCommand(CommandCode.END_ROUND_RESUME, endPayload);
+                }
 
                 try
                 {
                     Thread.sleep(5000);
                 }
-                catch (InterruptedException e) {}
+                catch (InterruptedException e)
+                {
+                }
 
                 playerIndex++;
             }
@@ -295,10 +341,6 @@ public class GameLogic extends Thread
         return sb.toString();
     }
 
-    /**
-     * Calcule la distance de Levenshtein entre le mot proposé et le mot caché.
-     * Permet de savoir si le joueur est "proche" de la réponse.
-     */
     public int WordDistance(String guess)
     {
         if (chosenWord == null || guess == null) return Integer.MAX_VALUE;

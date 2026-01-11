@@ -58,7 +58,7 @@ public class ClientHandler extends Thread
         this.codeToAction.put(CommandCode.DRAW_ACTION.Code(), new CDrawAction());
         this.codeToAction.put(CommandCode.NT_DECISION.Code(), new CNTDecision());
         this.codeToAction.put(CommandCode.NT_BEGIN.Code(), new CNTBegin());
-
+        this.codeToAction.put(CommandCode.END_ROUND_RESUME.Code(), new CEndRound());
     }
 
     public void SetDrawer(int id)

@@ -1,6 +1,5 @@
 package fr.polytech.wid.s7projectskribbl.client.network;
 
-
 public class ClientHeartBeat extends Thread
 {
     private volatile boolean beating;

@@ -162,7 +162,6 @@ public class JoinRoomController {
             PopupService.showPopup(
                     "Déconnexion",
                     "Veuillez patienter...",
-                    currentWindow,
                     true
             );
         });
@@ -201,7 +200,6 @@ public class JoinRoomController {
             PopupService.showPopup(
                     "Missing data!",
                     errorMsg.toString(),
-                    currentWindow,
                     true
             );
             return;
@@ -215,7 +213,6 @@ public class JoinRoomController {
             loadingPopup = PopupService.showPopup(
                     "Connecting to game...",
                     "Please Wait...",
-                    currentWindow,
                     false
             );
 
@@ -254,7 +251,6 @@ public class JoinRoomController {
             PopupService.showPopup(
                     "Unable to connect to server",
                     e.getMessage(),
-                    currentWindow,
                     true
             );
         }

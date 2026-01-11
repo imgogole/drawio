@@ -12,6 +12,7 @@ public class ClientImage
     private final BufferedImage avatar;
     private boolean ready = false;
     private boolean drawer = false;
+    private int points = 0;
 
     public ClientImage(int ID, String Username, BufferedImage Avatar, boolean ready)
     {
@@ -54,5 +55,20 @@ public class ClientImage
     public void SetReady(boolean ready)
     {
         this.ready = ready;
+    }
+
+    public int GetPoints()
+    {
+        return points;
+    }
+
+    public void SetPoints(int points)
+    {
+        this.points = points;
+    }
+
+    public void AddPoints(int points)
+    {
+        this.points += points;
     }
 }

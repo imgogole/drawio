@@ -74,7 +74,7 @@ public class GameController
     @FXML private Button btnQuit ;
 
     // ---- POPUP FIN DE ROUND ----
-    @FXML private VBox overlayEndRound;
+    @FXML private StackPane overlayEndRound;
     @FXML private Label endRoundTitle;
     @FXML private Label endRoundWord;
 
@@ -100,6 +100,11 @@ public class GameController
     @FXML private Label lblDecisionWait;
 
     @FXML private Label wordTitle;
+
+    @FXML private VBox scoreListContainer;
+
+    // Définition du Record pour passer les données simplement
+    public record PlayerRoundScore(String username, int gainPoints) {}
 
     private AudioClip messageSound;
 
@@ -130,6 +135,8 @@ public class GameController
 
     // ON STOCKE LE MOT MYSTERE
     private String WORD;
+
+    private int currentRoundValue, totalRoundValue;
 
     private static GameController instance;
 
@@ -186,16 +193,6 @@ public class GameController
 
             applyAnimations();
             setActiveTool(btnBrush);
-
-            // --- SIMULATION POUR LE TEST ---
-
-            // On simule que c'est le round 5 sur 5 (FIN DE PARTIE)
-            int roundActuel = 4;
-            int roundTotal = 5;
-
-            // Mise à jour des labels (pour l'affichage)
-            if(currentRound != null) currentRound.setText(String.valueOf(roundActuel));
-            if(roundNumber != null) roundNumber.setText(String.valueOf(roundTotal));
 
             UpdatePlayerList();
         });
@@ -309,6 +306,8 @@ public class GameController
      */
     public void SetRound(int current, int total)
     {
+        this.currentRoundValue = current;
+        this.totalRoundValue = total;
         Platform.runLater(() -> {
             if (currentRound != null)
             {
@@ -542,7 +541,7 @@ public class GameController
 
         // --- PLACEHOLDER STATUT (Trouvé / Dessine) ---
         // "Plus tard tu remplaceras cette condition par player.HasFoundWord()"
-        String statusText = player.IsDrawer() ? "Drawing..." : "Guessing";
+        String statusText = player.IsDrawer() ? "Drawing..." : ("Guessing") ;
 
         Label statusLabel = new Label(statusText);
         statusLabel.getStyleClass().add("grayText");
@@ -552,8 +551,7 @@ public class GameController
         HBox scoreBox = new HBox(5);
         scoreBox.setAlignment(Pos.CENTER);
 
-        // "Plus tard tu remplaceras '0' par player.GetScore()"
-        Label pointsLabel = new Label("0");
+        Label pointsLabel = new Label(String.valueOf(player.GetPoints()) );
         pointsLabel.getStyleClass().add("whiteText");
         pointsLabel.setStyle("-fx-font-size: 16px;");
 
@@ -885,71 +883,98 @@ public class GameController
     }
 
 
-    // Affiche le pop up en fin de round
-    public void showRoundEnd(boolean amIdrawing, String realWord, int currentR, int totalR, boolean everyoneFound)
+    /**
+     * Affiche le panneau de fin de round avec le mot caché et les gains de points.
+     * @param realWord Le mot qu'il fallait trouver.
+     * @param scores La liste des joueurs et leurs points gagnés ce tour-ci.
+     * @param animate Si vrai, joue une animation de fondu.
+     */
+    public void ShowEndRound(String realWord, List<PlayerRoundScore> scores, boolean animate)
     {
+        stopRoundTimer();
+        this.canDraw = false;
 
-        boolean isGameOver = (currentR >= totalR);
+        Platform.runLater(() -> {
+            // 2. Mise à jour des textes
+            if (endRoundTitle != null) endRoundTitle.setText("The word was :");
+            if (endRoundWord != null) endRoundWord.setText(realWord.toUpperCase());
 
-        // Cas de fin de partie
-        if (isGameOver) {
-            endRoundTitle.setText("GAME FINISHED !");
-            endRoundWord.setText("The Winner is ...");
-            endRoundWord.setVisible(true);
-            endRoundWord.setManaged(true);
+            // 3. Construction de la liste des scores
+            if (scoreListContainer != null) {
+                scoreListContainer.getChildren().clear();
 
-            // Afficher les boutons relancer/quitter
-            if (endGameButtons != null) {
-                endGameButtons.setVisible(true);
-                endGameButtons.setManaged(true);
+                for (PlayerRoundScore score : scores) {
+                    HBox row = createScoreRow(score);
+                    scoreListContainer.getChildren().add(row);
+                }
             }
 
-        }
-
-        // Cas où tout le monde trouve
-        else if (everyoneFound)
-        {
-            if(endGameButtons != null)
-            {
+            // On cache les boutons de fin de jeu par défaut (sauf si géré ailleurs pour le Game Over)
+            if(endGameButtons != null) {
                 endGameButtons.setVisible(false);
                 endGameButtons.setManaged(false);
             }
 
-            endRoundTitle.setText("Everyone found the word !");
-            endRoundWord.setText("Perfect !");
+            // 4. Affichage du Panel
+            overlayEndRound.setVisible(true);
+            overlayEndRound.toFront();
 
-            // On affiche ce message pour tout le monde
-            endRoundWord.setVisible(true);
-            endRoundWord.setManaged(true);
-        }
-
-
-        // Cas de temps écoulé (pas le dernier round)
-        else {
-
-            // Cache les boutons
-            if (endGameButtons != null) {
-                endGameButtons.setVisible(false);
-                endGameButtons.setManaged(false);
-            }
-
-            if (amIdrawing) {
-                endRoundTitle.setText("Time is up !");
-                endRoundWord.setVisible(false);
-                endRoundWord.setManaged(false);
+            if (animate) {
+                overlayEndRound.setOpacity(0);
+                FadeTransition ft = new FadeTransition(Duration.millis(400), overlayEndRound);
+                ft.setFromValue(0.0);
+                ft.setToValue(1.0);
+                ft.play();
             } else {
-                endRoundTitle.setText("The word was :");
-                endRoundWord.setText(realWord.toUpperCase());
-                endRoundWord.setVisible(true);
-                endRoundWord.setManaged(true);
+                overlayEndRound.setOpacity(1.0);
             }
+        });
+    }
+
+    /**
+     * Ferme le panneau de fin de round.
+     * @param animate Si vrai, joue une animation de disparition.
+     */
+    public void CloseEndRound(boolean animate)
+    {
+        Platform.runLater(() -> {
+            if (!overlayEndRound.isVisible()) return;
+
+            if (animate) {
+                FadeTransition ft = new FadeTransition(Duration.millis(300), overlayEndRound);
+                ft.setFromValue(1.0);
+                ft.setToValue(0.0);
+                ft.setOnFinished(e -> overlayEndRound.setVisible(false));
+                ft.play();
+            } else {
+                overlayEndRound.setVisible(false);
+            }
+        });
+    }
+
+    // --- Helper pour créer une ligne de score ---
+    private HBox createScoreRow(PlayerRoundScore score) {
+        HBox row = new HBox();
+        row.getStyleClass().add("score-row");
+
+        // Espace entre Pseudo et Points (le Pane pousse les éléments aux extrémités)
+        Pane spacer = new Pane();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Label lblName = new Label(score.username());
+        lblName.getStyleClass().add("score-username");
+
+        Label lblPoints = new Label((score.gainPoints() > 0 ? "+" : "") + score.gainPoints() + " pts");
+
+        // Style différent si 0 points ou positif
+        if (score.gainPoints() > 0) {
+            lblPoints.getStyleClass().add("score-points");
+        } else {
+            lblPoints.getStyleClass().add("score-points-zero");
         }
 
-        // Rend le pop up visible
-        overlayEndRound.setVisible(true);
-
-        // Passe le pop up au 1er plan
-        overlayEndRound.toFront();
+        row.getChildren().addAll(lblName, spacer, lblPoints);
+        return row;
     }
 
     // Cache le pop up (pour le début des rounds)

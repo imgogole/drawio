@@ -1,7 +1,10 @@
 package fr.polytech.wid.s7projectskribbl.client.network;
 
+import fr.polytech.wid.s7projectskribbl.client.ClientApplication;
+import fr.polytech.wid.s7projectskribbl.client.service.PopupService;
 import fr.polytech.wid.s7projectskribbl.common.CommandCode;
 import fr.polytech.wid.s7projectskribbl.common.payloads.Payload;
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -69,6 +72,18 @@ public class ClientHandlerOut
         catch (IOException e)
         {
             System.err.println("Erreur de battement de coeur : " + e.getMessage());
+            try
+            {
+                ClientHandler.Singleton().DisconnectAndStop();
+                ClientApplication.LoadScene("JoinRoomView.fxml");
+                Platform.runLater(() -> {
+                    PopupService.showPopup("Déconnexion", "Connexion perdue avec le serveur.", true);
+                });
+            }
+            catch (IOException f)
+            {
+
+            }
         }
     }
 }
