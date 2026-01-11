@@ -756,6 +756,10 @@ public class GameController
                 handleSendAction();
             }
         });
+
+        messagesContainer.heightProperty().addListener((observable, oldValue, newValue) -> {
+            scrollPaneMessages.setVvalue(1.0);
+        });
     }
 
 
