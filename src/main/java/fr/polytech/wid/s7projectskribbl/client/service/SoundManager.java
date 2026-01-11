@@ -85,17 +85,17 @@ public class SoundManager {
      * Joue le son demandé si le son est activé et si le fichier existe.
      * @param key Le nom du fichier sans extension
      */
-    public void playSound(String key) {
+    public void playSound(String key)
+    {
         if (!isSoundActivated) return;
-        if (key.endsWith(".mp3")) {
+        if (key.endsWith(".mp3"))
+        {
             key = key.replace(".mp3", "");
         }
         AudioClip clip = soundMap.get(key);
-        if (clip != null) {
+        if (clip != null)
+        {
             clip.play();
-            System.out.println("[Audio] Son lancé comme demandé : " + key);
-        } else {
-            System.out.println("[Audio] Son inconnu demandé : " + key);
         }
     }
 }
