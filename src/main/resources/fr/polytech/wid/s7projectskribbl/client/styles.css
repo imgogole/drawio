@@ -413,3 +413,41 @@
     -fx-font-weight: bold;
     -fx-font-style: italic;
 }
+
+/* Fond noir transparent qui couvre le canvas */
+.overlay-dim-background {
+    -fx-background-color: rgba(0, 0, 0, 0.85);
+    -fx-background-radius: 10px; /* Pour matcher les bords du canvasContainer */
+}
+
+/* Titre plus grand pour la sélection */
+.overlay-title-large {
+    -fx-font-size: 28px;
+    -fx-text-fill: #D3DAD9;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+}
+
+/* Boutons de choix de mots */
+.word-choice-button {
+    -fx-background-color: #f0c50d;
+    -fx-text-fill: #543015;
+    -fx-font-weight: 900;
+    -fx-font-size: 20px;
+    -fx-padding: 15px 30px;
+    -fx-background-radius: 12px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 5, 0, 0, 2);
+    -fx-min-width: 150px;
+}
+
+.word-choice-button:hover {
+    -fx-background-color: #ffdb4d;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.word-choice-button:pressed {
+    -fx-background-color: #d4ac0b;
+    -fx-translate-y: 2px;
+}

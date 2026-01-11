@@ -20,10 +20,9 @@
     </padding>
 
     <VBox alignment="CENTER" spacing="-5.0">
-        <Label text="DRAW THE WORD :" styleClass="titre"/>
-        <Label text="CAT" fx:id="mysteryWord"/>
+        <Label fx:id="wordTitle" text="PREPARING..." styleClass="titre"/>
+        <Label fx:id="mysteryWord" text="" styleClass="titre" style="-fx-text-fill: white;"/>
     </VBox>
-
     <HBox alignment="CENTER" spacing="22.0" VBox.vgrow="ALWAYS">
 
         <VBox spacing="5.0" HBox.hgrow="ALWAYS">
@@ -115,6 +114,40 @@
                         <Button fx:id="btnEndQuit" text="Quit" style="-fx-base: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
                     </HBox>
                 </VBox>
+
+                <StackPane fx:id="overlayWordSelection"
+                           visible="false"
+                           styleClass="overlay-dim-background">
+
+                    <VBox fx:id="wordSelectionContent"
+                          alignment="CENTER"
+                          spacing="30"
+                          maxWidth="600" maxHeight="300">
+
+                        <Label text="Choose the word you will draw" styleClass="overlay-title-large"/>
+
+                        <HBox spacing="30" alignment="CENTER">
+                            <Button fx:id="btnWord1" text="WORD 1" styleClass="word-choice-button"/>
+                            <Button fx:id="btnWord2" text="WORD 2" styleClass="word-choice-button"/>
+                            <Button fx:id="btnWord3" text="WORD 3" styleClass="word-choice-button"/>
+                        </HBox>
+                    </VBox>
+                </StackPane>
+                <StackPane fx:id="overlayDecisionWait"
+                           visible="false"
+                           styleClass="overlay-dim-background">
+
+                    <VBox alignment="CENTER" spacing="20">
+                        <Label fx:id="lblDecisionWait"
+                               text="Un joueur choisit..."
+                               styleClass="overlay-title-large"
+                               wrapText="true"
+                               textAlignment="CENTER"/>
+
+                        <ProgressIndicator style="-fx-accent: #f0c50d; -fx-pref-width: 50; -fx-pref-height: 50;"/>
+                    </VBox>
+
+                </StackPane>
             </StackPane>
         </VBox>
 

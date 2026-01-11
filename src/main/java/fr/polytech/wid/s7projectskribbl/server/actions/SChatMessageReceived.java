@@ -1,7 +1,10 @@
 package fr.polytech.wid.s7projectskribbl.server.actions;
 
 import fr.polytech.wid.s7projectskribbl.common.CommandCode;
+import fr.polytech.wid.s7projectskribbl.common.GameCommonMetadata;
 import fr.polytech.wid.s7projectskribbl.common.payloads.ChatMessagePayload;
+import fr.polytech.wid.s7projectskribbl.common.payloads.ServerMessagePayload;
+import fr.polytech.wid.s7projectskribbl.server.GameLogic;
 import fr.polytech.wid.s7projectskribbl.server.PlayerHandler;
 
 public class SChatMessageReceived implements ServerAction
@@ -9,22 +12,76 @@ public class SChatMessageReceived implements ServerAction
     @Override
     public void Execute(PlayerHandler player, byte[] data)
     {
-        ChatMessagePayload chatMessagePayload = new ChatMessagePayload();
-        chatMessagePayload.Parse(data);
+        ChatMessagePayload chatPayload = new ChatMessagePayload();
+        chatPayload.Parse(data);
 
-        String msg = chatMessagePayload.Message();
-        // TODO déterminer une tentative de deviner le mot à trouver
+        String msg = chatPayload.Message();
+        GameLogic logic = player.Master().Logic();
 
-        // En déduire ce qu'on doit faire du message
-        // 0 : tentative échoué, considéré comme message normal
-        // 1 : tentative échoué mais presque : considéré comme message normal mais envoyer un message pour dire que c'est presque ça
-        // 2 : tentative réussi : prévenir le client qu'il a réussi, ne pas envoyer le message
-        // 3 : le client avait déjà réussi, envoyer le message uniquement aux clients qui ont réussi
-        int attemptResultCode = 0;
-
-        for (PlayerHandler otherPlayer : player.Master().Clients())
+        if (logic == null || logic.ChoosenWord() == null)
         {
-            otherPlayer.Out().SendCommand(CommandCode.CHAT_MESSAGE_SENT, chatMessagePayload);
+            BroadcastChatMessage(player, chatPayload, logic, false);
+            return;
+        }
+
+        if (logic.Drawer().ID() == player.ID())
+        {
+            //BroadcastChatMessage(player, chatPayload);
+            ServerMessagePayload warnMsg = new ServerMessagePayload(
+                    "You can't use the chat during your turn!",
+                    "#c24b36"
+            );
+            player.Out().SendCommand(CommandCode.SERVER_MESSAGE, warnMsg);
+            return;
+        }
+
+        if (logic.HasFoundWord(player.ID()))
+        {
+            BroadcastChatMessage(player, chatPayload, logic, true);
+            return;
+        }
+
+        int distance = logic.WordDistance(msg);
+
+        if (distance == 0)
+        {
+            logic.OnPlayerFoundWord(player);
+
+            ServerMessagePayload successMsg = new ServerMessagePayload(
+                    player.Username() + " guessed the word!",
+                    "#2ecc71" // Vert
+            );
+
+            for (PlayerHandler p : player.Master().Clients())
+            {
+                p.Out().SendCommand(CommandCode.SERVER_MESSAGE, successMsg);
+            }
+        }
+        else if (distance <= GameCommonMetadata.NEAR_TO_WORD)
+        {
+            ServerMessagePayload closeMsg = new ServerMessagePayload(
+                    "'" + msg + "' is close!",
+                    "#f1c40f" // Jaune
+            );
+            player.Out().SendCommand(CommandCode.SERVER_MESSAGE, closeMsg);
+        }
+        else
+        {
+            BroadcastChatMessage(player, chatPayload, logic, false);
+        }
+    }
+
+    /**
+     * Envoie le message de chat à tous les clients connectés.
+     */
+    private void BroadcastChatMessage(PlayerHandler sender, ChatMessagePayload payload, GameLogic logic, boolean onlyFounders)
+    {
+        for (PlayerHandler otherPlayer : sender.Master().Clients())
+        {
+            if (!onlyFounders || logic.HasFoundWord(otherPlayer.ID()))
+            {
+                otherPlayer.Out().SendCommand(CommandCode.CHAT_MESSAGE_SENT, payload);
+            }
         }
     }
 }

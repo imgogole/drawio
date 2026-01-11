@@ -98,6 +98,25 @@ public class JoinRoomController {
                 new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.bmp")
         );
 
+        // --- AJOUT : Définir le dossier par défaut ---
+        try {
+            String userHome = System.getProperty("user.home");
+            File defaultDir = new File("C:\\Users\\imgog\\Desktop\\Info\\Projet S7");
+
+            // 2. IMPORTANT : On vérifie qu'il existe avant de l'assigner
+            // (Sinon JavaFX lance une erreur et le FileChooser ne s'ouvre pas)
+            if (defaultDir.exists() && defaultDir.isDirectory()) {
+                fileChooser.setInitialDirectory(defaultDir);
+            } else {
+                // Fallback : Si "Pictures" n'existe pas, on ouvre le dossier Home
+                fileChooser.setInitialDirectory(new File(userHome));
+            }
+        } catch (Exception e) {
+            // En cas de souci de permission, on ne fait rien, le FileChooser s'ouvrira par défaut
+            System.out.println("Impossible de définir le répertoire initial : " + e.getMessage());
+        }
+        // ---------------------------------------------
+
         // On récupère la fenêtre actuelle pour centrer la boîte de dialogue
         Window stage = avatarCircle.getScene().getWindow();
         File file = fileChooser.showOpenDialog(stage);

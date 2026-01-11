@@ -43,7 +43,7 @@ public class ClientImage
 
     public void SetDrawer(boolean drawer)
     {
-        drawer = drawer;
+        this.drawer = drawer;
     }
 
     public boolean IsReady()

@@ -5,8 +5,8 @@ import fr.polytech.wid.s7projectskribbl.client.network.ClientImage;
 import fr.polytech.wid.s7projectskribbl.common.CommandCode;
 import fr.polytech.wid.s7projectskribbl.common.payloads.ChatMessagePayload;
 import fr.polytech.wid.s7projectskribbl.common.payloads.DrawPayload;
-import javafx.animation.Interpolator;
-import javafx.animation.Transition;
+import fr.polytech.wid.s7projectskribbl.common.payloads.NTDecisionResultPayload;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -27,8 +27,12 @@ import javafx.scene.shape.Rectangle;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import javafx.animation.AnimationTimer;
+import javafx.scene.media.AudioClip;
+
 import fr.polytech.wid.s7projectskribbl.common.payloads.DrawPayload;
+import javafx.animation.Interpolator;
+import javafx.scene.control.ProgressIndicator;
+import fr.polytech.wid.s7projectskribbl.client.network.ClientImage;
 
 public class GameController
 {
@@ -85,9 +89,26 @@ public class GameController
     @FXML private Circle circleTailleIcone;
     @FXML private ColorPicker colorPicker;
 
+    // ---- SELECTION DE MOTS ----
+    @FXML private StackPane overlayWordSelection; // Le fond noir
+    @FXML private VBox wordSelectionContent;      // Le contenu animé
+    @FXML private Button btnWord1;
+    @FXML private Button btnWord2;
+    @FXML private Button btnWord3;
+
+    @FXML private StackPane overlayDecisionWait;
+    @FXML private Label lblDecisionWait;
+
+    @FXML private Label wordTitle;
+
+    private AudioClip messageSound;
+
+    // ---- TIMER ----
+    private Timeline roundTimer; // L'objet qui gère le décompte
+    private int remainingTimeSeconds; // Le temps restant en entier
+
     private final Queue<DrawPayload> drawQueue = new ConcurrentLinkedQueue<>();
     private AnimationTimer drawingLoop;
-
 
     private static final double BASE_WIDTH = 1280.0;
     private static final double BASE_HEIGHT = 720.0;
@@ -99,7 +120,13 @@ public class GameController
     private boolean isEraserActive = false;
 
     // VARIABLE DE GESTION DU RÔLE
-    private boolean isDrawer = true;
+    private boolean isDrawer = false;
+    private boolean canDraw = false;
+
+    public boolean CanDraw()
+    {
+        return isDrawer && canDraw;
+    }
 
     // ON STOCKE LE MOT MYSTERE
     private String WORD;
@@ -138,6 +165,7 @@ public class GameController
 
         // Initialisation des boutons Replay/Quit
         initEndButtons();
+        HideTitle();
 
         // Initialisation du bouton Quit
         if(btnQuit != null)
@@ -169,15 +197,22 @@ public class GameController
             if(currentRound != null) currentRound.setText(String.valueOf(roundActuel));
             if(roundNumber != null) roundNumber.setText(String.valueOf(roundTotal));
 
-
-            // CAS DESSINATEUR
-            updateGameState(isDrawer, WORD);
-            //showRoundEnd(isDrawer, WORD, roundActuel, roundTotal, true);    //test quand tt le monde trouve
             UpdatePlayerList();
         });
 
         startDrawingLoop();
         initResponsiveCanvas();
+
+        try {
+            var soundURL = getClass().getResource("/sounds/Message_Short.mp3");
+            if (soundURL != null) {
+                messageSound = new AudioClip(soundURL.toExternalForm());
+            } else {
+                System.err.println("Impossible de trouver le son : /sounds/Message_Short.mp3");
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur chargement son : " + e.getMessage());
+        }
     }
 
     private void startDrawingLoop() {
@@ -248,6 +283,166 @@ public class GameController
         }
     }
 
+    public void SetWordTitle(String wordToFound)
+    {
+        Platform.runLater(() -> {
+            // 1. Mise à jour du Titre (Logique corrigée)
+            if (wordTitle != null) {
+                if (isDrawer) {
+                    wordTitle.setText("DRAW THE WORD :"); // Le dessinateur dessine
+                } else {
+                    wordTitle.setText("GUESS THE WORD :"); // Les autres devinent
+                }
+            }
+
+            // 2. Mise à jour du Mot (Avec sécurité anti-crash)
+            if (mysteryWord != null) {
+                mysteryWord.setText(wordToFound);
+            }
+        });
+    }
+
+    /**
+     * Met à jour l'affichage des rounds (ex: Round 2 / 5).
+     * @param current Le numéro du round actuel.
+     * @param total Le nombre total de rounds.
+     */
+    public void SetRound(int current, int total)
+    {
+        Platform.runLater(() -> {
+            if (currentRound != null)
+            {
+                currentRound.setText(String.valueOf(current));
+            }
+
+            if (roundNumber != null)
+            {
+                roundNumber.setText(String.valueOf(total));
+            }
+        });
+    }
+
+    /**
+     * Lance le début d'un round : active les contrôles et lance le chronomètre.
+     * @param durationSeconds La durée du round en secondes (envoyée par le serveur).
+     */
+    public void BeginRound(float durationSeconds)
+    {
+        this.canDraw = true;
+        this.remainingTimeSeconds = (int) durationSeconds;
+
+        Platform.runLater(() -> {
+            // 1. Gestion de l'interface (Toolbox)
+            if (toolbox != null)
+            {
+                toolbox.setVisible(isDrawer);
+                toolbox.setDisable(!isDrawer);
+            }
+
+            if(!isDrawer)
+            {
+                CloseDecisionPanel(true);
+            }
+
+            // 2. Initialisation de l'affichage du timer
+            updateTimerLabel();
+
+            // 3. Lancement du Chronomètre
+            startRoundTimer();
+
+            String username = ClientHandler.Singleton().GetDrawer().Username();
+            AddServerMessageToChat(username + " is drawing now!", "#4287f5");
+        });
+    }
+
+    /**
+     * Configure et démarre le Timeline pour le décompte.
+     */
+    private void startRoundTimer() {
+        // Sécurité : on arrête l'ancien timer s'il tourne encore
+        stopRoundTimer();
+
+        roundTimer = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            remainingTimeSeconds--;
+
+            // Mise à jour de l'affichage
+            updateTimerLabel();
+
+            // Gestion des 10 dernières secondes (Tic-tac)
+            if (remainingTimeSeconds <= 10 && remainingTimeSeconds > 0) {
+                playTickTockSound();
+            }
+
+            // Fin du temps
+            if (remainingTimeSeconds <= 0) {
+                stopRoundTimer();
+                // Optionnel : Tu peux ajouter une logique locale ici "Time's up"
+                // mais généralement le serveur envoie le paquet de fin de round.
+            }
+        }));
+
+        roundTimer.setCycleCount(Animation.INDEFINITE);
+        roundTimer.play();
+    }
+
+    /**
+     * Arrête proprement le timer.
+     */
+    private void stopRoundTimer() {
+        if (roundTimer != null) {
+            roundTimer.stop();
+            roundTimer = null;
+        }
+    }
+
+    /**
+     * Met à jour le texte du Label timer avec format MM:SS.
+     */
+    private void updateTimerLabel() {
+        if (timer == null) return;
+
+        // On s'assure de ne pas afficher de temps négatif
+        int t = Math.max(0, remainingTimeSeconds);
+
+        int minutes = t / 60;
+        int seconds = t % 60;
+
+        // Format "M:SS" (ex: 1:05 ou 0:09)
+        timer.setText(String.format("%d:%02d", minutes, seconds));
+
+        // Changement de couleur en rouge pour les 10 dernières secondes
+        if (t <= 10) {
+            timer.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;"); // Rouge
+        } else {
+            timer.setStyle("-fx-text-fill: #E59700; -fx-font-weight: bold;"); // Orange (défaut)
+        }
+    }
+
+    /**
+     * Placeholder pour jouer le son.
+     */
+    private void playTickTockSound() {
+        // TODO: Insérer ici le code pour jouer le son (Media / AudioClip)
+        // System.out.println("TICK TOCK - " + remainingTimeSeconds);
+        /*
+        try {
+            AudioClip clip = new AudioClip(getClass().getResource("/sounds/tick.wav").toExternalForm());
+            clip.play();
+        } catch (Exception e) { e.printStackTrace(); }
+        */
+    }
+
+    /**
+     * Cache le titre et le mot mystère (utilisé à l'initialisation).
+     */
+    public void HideTitle()
+    {
+        Platform.runLater(() -> {
+            if (wordTitle != null) wordTitle.setText("");
+            if (mysteryWord != null) mysteryWord.setText("");
+        });
+    }
+
     // --- Méthodes de conversion nécessaires si pas déjà présentes ---
     private double toScreenX(double virtualX) {
         return virtualX * (drawingCanvas.getWidth() / BASE_WIDTH);
@@ -294,6 +489,10 @@ public class GameController
         canvasScaler.setLayoutY((availableHeight - BASE_HEIGHT) / 2);
     }
 
+    public void Clear()
+    {
+        Platform.runLater(this::fillCanvasWithWhite);
+    }
 
     // Colore le canvas en blanc
     private void fillCanvasWithWhite() {
@@ -344,6 +543,7 @@ public class GameController
         // --- PLACEHOLDER STATUT (Trouvé / Dessine) ---
         // "Plus tard tu remplaceras cette condition par player.HasFoundWord()"
         String statusText = player.IsDrawer() ? "Drawing..." : "Guessing";
+
         Label statusLabel = new Label(statusText);
         statusLabel.getStyleClass().add("grayText");
         statusLabel.setStyle("-fx-font-size: 14px; -fx-font-style: italic;");
@@ -369,6 +569,38 @@ public class GameController
         return card;
     }
 
+    /**
+     * Ajoute un message système venant du serveur avec une couleur spécifique.
+     * @param message Le texte à afficher.
+     * @param color La couleur au format HEX (ex: "#FF0000").
+     */
+    public void AddServerMessageToChat(String message, String color)
+    {
+        Platform.runLater(() -> {
+            HBox msgBox = new HBox();
+
+            Label lblMsg = new Label(message);
+            lblMsg.setWrapText(true);
+
+            // Sécurité : Si la couleur est null ou vide, on met du noir par défaut
+            String finalColor = (color != null && !color.isEmpty()) ? color : "#000000";
+
+            // Application du style dynamique
+            // On force le gras (-fx-font-weight: bold) pour les messages serveur
+            lblMsg.setStyle("-fx-text-fill: " + finalColor + "; -fx-font-weight: bold; -fx-font-size: 15px;");
+
+            msgBox.getChildren().add(lblMsg);
+            messagesContainer.getChildren().add(msgBox);
+
+            // Auto Scroll vers le bas
+            scrollPaneMessages.setVvalue(1.0);
+
+            if (messageSound != null) {
+                messageSound.play();
+            }
+        });
+    }
+
     // Configure les paramètres de base de la brush (taille, couleur)
     private void initDrawingSettings(){
         //brush ronde
@@ -389,7 +621,7 @@ public class GameController
     private void initDrawingEvents() {
         // 1. CLIC SOURIS (Début du tracé)
         drawingCanvas.setOnMousePressed(e -> {
-            if (!isDrawer) return;
+            if (!CanDraw()) return;
 
             // Dessin local (Feedback immédiat)
             gc.beginPath();
@@ -402,7 +634,7 @@ public class GameController
 
         // 2. GLISSEMENT SOURIS (Continuité du trait)
         drawingCanvas.setOnMouseDragged(e -> {
-            if (!isDrawer) return;
+            if (!CanDraw()) return;
 
             // Dessin local
             gc.lineTo(e.getX(), e.getY());
@@ -494,6 +726,8 @@ public class GameController
 
         // --- BOUTON CLEAR ---
         btnClear.setOnAction(e -> {
+            if (!CanDraw()) return;
+
             fillCanvasWithWhite();
             sendDrawCommand(DrawPayload.DrawAction.CLEAR, 0, 0);
         });
@@ -601,7 +835,6 @@ public class GameController
 
         // Auto Scroll pour voir le dernier message à chaque fois
         Platform.runLater(() -> scrollPaneMessages.setVvalue(1.0));
-
     }
 
 
@@ -717,11 +950,6 @@ public class GameController
 
         // Passe le pop up au 1er plan
         overlayEndRound.toFront();
-
-
-
-
-
     }
 
     // Cache le pop up (pour le début des rounds)
@@ -730,41 +958,197 @@ public class GameController
 
     }
 
-
-
-    // Met à jour l'interface selon le rôle du joueur
-    private void updateGameState(boolean amIdrawing, String word)
+    public void PrepareForNewRound()
     {
-        this.isDrawer = amIdrawing;
-
-        // GESTION TOOLBOX
-        if (toolbox != null)
-        {
-            toolbox.setVisible(isDrawer); // cache/affiche la toolbox
-            toolbox.setDisable(!isDrawer);
-        }
-
-        // GESTION DU MOT MYSTERE
-        if (amIdrawing)
-        {
-            // si je dessine, le mot s'affiche
-            mysteryWord.setText(word);
-        }
-        else
-        {
-            // si je devine, chaque lettre est remplacée par "_"
-            String hiddenWord = word.replaceAll("[^ ]", "_ ");
-            mysteryWord.setText(hiddenWord);
-        }
-
-
-        hideRoundEnd();
-
-
-
-
+        Platform.runLater(this::Internal_PrepareForNewRound);
     }
 
+    private void Internal_PrepareForNewRound()
+    {
+        this.isDrawer = ClientHandler.Singleton().GetClientImage(ClientHandler.Singleton().ID()).IsDrawer();
+
+        HideTitle();
+        hideRoundEnd();
+    }
+
+
+
+    private ScaleTransition getScaleTransition()
+    {
+        ScaleTransition st = new ScaleTransition(Duration.millis(500), wordSelectionContent);
+        st.setFromX(0);
+        st.setFromY(0);
+        st.setToX(1);
+        st.setToY(1);
+        st.setInterpolator(new Interpolator() {
+            @Override
+            protected double curve(double t) {
+                return 1 - Math.pow(1 - t, 5);
+            }
+        });
+        return st;
+    }
+
+    /**
+     * Ouvre le panneau de sélection de mots.
+     * @param animate Si true, joue l'animation d'ouverture (Scale). Sinon, affiche instantanément.
+     */
+    public void OpenWordsSelectionPanel(String choice1, String choice2, String choice3, boolean animate)
+    {
+        Platform.runLater(() -> {
+            // Mise à jour des textes des boutons
+            if(btnWord1 != null) {
+                btnWord1.setText(choice1.toUpperCase());
+                btnWord1.setOnAction(e -> handleWordChosen(0));
+            }
+            if(btnWord2 != null) {
+                btnWord2.setText(choice2.toUpperCase());
+                btnWord2.setOnAction(e -> handleWordChosen(1));
+            }
+            if(btnWord3 != null) {
+                btnWord3.setText(choice3.toUpperCase());
+                btnWord3.setOnAction(e -> handleWordChosen(2));
+            }
+
+            // On rend le panneau visible et au premier plan
+            overlayWordSelection.setVisible(true);
+            overlayWordSelection.toFront();
+
+            if (animate)
+            {
+                // Animation : on part de 0 pour aller à 1
+                wordSelectionContent.setScaleX(0);
+                wordSelectionContent.setScaleY(0);
+
+                ScaleTransition st = getScaleTransition();
+                st.play();
+            }
+            else
+            {
+                // Pas d'animation : on met l'échelle à 1 direct
+                wordSelectionContent.setScaleX(1);
+                wordSelectionContent.setScaleY(1);
+            }
+        });
+    }
+
+    /**
+     * Gère le clic sur un mot et ferme le panneau.
+     */
+    private void handleWordChosen(int word)
+    {
+        System.out.println("Mot choisi : " + word);
+        ClientHandler.Singleton().Out().SendCommand(CommandCode.NT_DECISION, new NTDecisionResultPayload(word));
+
+        // On ferme avec animation car c'est une action utilisateur
+        closeWordSelectionPanel(true);
+    }
+
+    /**
+     * Ferme le panneau de sélection de mots.
+     * @param animate Si true, joue l'animation de fermeture. Sinon, cache instantanément.
+     */
+    private void closeWordSelectionPanel(boolean animate)
+    {
+        Platform.runLater(() -> {
+            if (animate)
+            {
+                ScaleTransition st = new ScaleTransition(Duration.millis(300), wordSelectionContent);
+                st.setFromX(1);
+                st.setFromY(1);
+                st.setToX(0);
+                st.setToY(0);
+
+                st.setInterpolator(new Interpolator() {
+                    @Override
+                    protected double curve(double t) {
+                        return t * t * t * t * t; // EaseInQuint
+                    }
+                });
+
+                st.setOnFinished(e -> {
+                    overlayWordSelection.setVisible(false);
+                });
+
+                st.play();
+            }
+            else
+            {
+                overlayWordSelection.setVisible(false);
+            }
+        });
+    }
+
+    /**
+     * Ouvre le panneau d'attente indiquant qui est en train de choisir.
+     * @param drawerID L'ID du joueur qui dessine.
+     * @param animate Si true, joue un fondu d'entrée. Sinon, affiche instantanément.
+     */
+    public void OpenDecisionPanel(int drawerID, boolean animate)
+    {
+        Platform.runLater(() -> {
+            // 1. Récupération du pseudo
+            String username = "Un joueur";
+            ClientImage client = ClientHandler.Singleton().GetClientImage(drawerID);
+            if (client != null) {
+                username = client.Username();
+            }
+
+            // 2. Mise à jour du texte
+            if (lblDecisionWait != null) {
+                lblDecisionWait.setText(username + " est en train de choisir le mot...");
+            }
+
+            // 3. Affichage
+            overlayDecisionWait.setVisible(true);
+            overlayDecisionWait.toFront();
+
+            if (animate)
+            {
+                overlayDecisionWait.setOpacity(0);
+                FadeTransition ft = new FadeTransition(Duration.millis(300), overlayDecisionWait);
+                ft.setFromValue(0.0);
+                ft.setToValue(1.0);
+                ft.play();
+            }
+            else
+            {
+                overlayDecisionWait.setOpacity(1.0);
+            }
+        });
+    }
+
+    /**
+     * Ferme le panneau d'attente.
+     * @param animate Si true, joue un fondu de sortie. Sinon, cache instantanément.
+     */
+    public void CloseDecisionPanel(boolean animate)
+    {
+        Platform.runLater(() -> {
+            if (!overlayDecisionWait.isVisible()) return;
+
+            if (animate)
+            {
+                // Animation (Fade Out)
+                FadeTransition ft = new FadeTransition(Duration.millis(300), overlayDecisionWait);
+                ft.setFromValue(1.0);
+                ft.setToValue(0.0);
+
+                ft.setOnFinished(e -> {
+                    overlayDecisionWait.setVisible(false);
+                    // On remet l'opacité à 1 pour la prochaine ouverture sans anim
+                    overlayDecisionWait.setOpacity(1.0);
+                });
+
+                ft.play();
+            }
+            else
+            {
+                overlayDecisionWait.setVisible(false);
+                overlayDecisionWait.setOpacity(1.0);
+            }
+        });
+    }
     // Gestion des boutons de fin de jeu
     private void initEndButtons() {
         if (btnEndQuit != null)
@@ -804,8 +1188,6 @@ public class GameController
         {
             currentRound.setText("1");
         }
-
-        updateGameState(isDrawer, WORD);
     }
 }
 

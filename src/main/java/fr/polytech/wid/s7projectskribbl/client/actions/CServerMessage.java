@@ -1,5 +1,6 @@
 package fr.polytech.wid.s7projectskribbl.client.actions;
 
+import fr.polytech.wid.s7projectskribbl.client.controller.GameController;
 import fr.polytech.wid.s7projectskribbl.common.payloads.ServerMessagePayload;
 
 import java.nio.ByteBuffer;
@@ -12,6 +13,9 @@ public class CServerMessage implements ClientAction
         ServerMessagePayload payload = new ServerMessagePayload();
         payload.Parse(data);
 
-        System.out.println("Message reçu du serveur: \"" + payload.Message() + "\"");
+        if (GameController.Instance() != null)
+        {
+            GameController.Instance().AddServerMessageToChat(payload.Message(), payload.Color());
+        }
     }
 }

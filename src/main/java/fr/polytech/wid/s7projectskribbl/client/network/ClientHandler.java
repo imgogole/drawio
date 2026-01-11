@@ -56,6 +56,17 @@ public class ClientHandler extends Thread
         this.codeToAction.put(CommandCode.CHAT_MESSAGE_SENT.Code(), new CChatMessageReceived());
         this.codeToAction.put(CommandCode.ENTER_GAME.Code(), new CEnterGame());
         this.codeToAction.put(CommandCode.DRAW_ACTION.Code(), new CDrawAction());
+        this.codeToAction.put(CommandCode.NT_DECISION.Code(), new CNTDecision());
+        this.codeToAction.put(CommandCode.NT_BEGIN.Code(), new CNTBegin());
+
+    }
+
+    public void SetDrawer(int id)
+    {
+        for (ClientImage client : clientImageMap.values())
+        {
+            client.SetDrawer(client.ID() == id);
+        }
     }
 
     public List<ClientImage> ClientImages()
@@ -83,6 +94,11 @@ public class ClientHandler extends Thread
     public ClientHandlerOut Out()
     {
         return outHandler;
+    }
+
+    public ClientImage GetDrawer()
+    {
+        return clientImageMap.values().stream().filter(ClientImage::IsDrawer).findFirst().orElse(null);
     }
 
     @Override

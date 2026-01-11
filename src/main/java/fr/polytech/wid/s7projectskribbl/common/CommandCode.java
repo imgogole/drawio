@@ -12,7 +12,9 @@ public enum CommandCode
     ENTER_WAITING_ROOM(7),
     ENTER_GAME(8),
     CHAT_MESSAGE_SENT(9),
-    DRAW_ACTION(10)
+    DRAW_ACTION(10),
+    NT_DECISION(11),
+    NT_BEGIN(12)
     ;
 
     private final int code;

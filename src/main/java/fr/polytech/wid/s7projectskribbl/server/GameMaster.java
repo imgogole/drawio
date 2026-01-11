@@ -27,12 +27,10 @@ public class GameMaster
     private int port;
 
     private final PromptDebugGameMaster promptDebugGameMaster;
-
     private final ServerCommandHandler serverCommandHandler;
-
     private ArrayList<PlayerHandler> clients;
-
     private WaitForPlayersHandler waitForPlayersHandler;
+    private GameLogic gameLogic;
 
     private int minimumPlayers;
 
@@ -69,6 +67,7 @@ public class GameMaster
         return serverCommandHandler;
     }
     public WaitForPlayersHandler WForPlayersHandler() { return waitForPlayersHandler; }
+    public GameLogic Logic() { return gameLogic; }
 
     /**
      * Initialise le GameMaster.
@@ -131,6 +130,9 @@ public class GameMaster
         {
             player.Out().SendCommand(CommandCode.ENTER_GAME, null);
         }
+
+        this.gameLogic = new GameLogic(this);
+        this.gameLogic.start();
     }
 
     /**

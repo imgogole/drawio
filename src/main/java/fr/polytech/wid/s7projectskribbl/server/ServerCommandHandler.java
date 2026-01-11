@@ -26,6 +26,7 @@ public class ServerCommandHandler extends Thread
         this.codeToAction.put(CommandCode.REQUEST_PLAYER_INFO.Code(), new SPlayerInfoRequestAction());
         this.codeToAction.put(CommandCode.CHAT_MESSAGE_SENT.Code(), new SChatMessageReceived());
         this.codeToAction.put(CommandCode.DRAW_ACTION.Code(),  new SDrawAction());
+        this.codeToAction.put(CommandCode.NT_DECISION.Code(), new SNTDecision());
     }
 
     /**
