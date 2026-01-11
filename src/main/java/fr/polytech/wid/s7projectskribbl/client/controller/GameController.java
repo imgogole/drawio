@@ -2,6 +2,7 @@ package fr.polytech.wid.s7projectskribbl.client.controller;
 
 import fr.polytech.wid.s7projectskribbl.client.network.ClientHandler;
 import fr.polytech.wid.s7projectskribbl.client.network.ClientImage;
+import fr.polytech.wid.s7projectskribbl.client.service.SoundManager;
 import fr.polytech.wid.s7projectskribbl.common.CommandCode;
 import fr.polytech.wid.s7projectskribbl.common.payloads.ChatMessagePayload;
 import fr.polytech.wid.s7projectskribbl.common.payloads.DrawPayload;
@@ -106,8 +107,6 @@ public class GameController
     // Définition du Record pour passer les données simplement
     public record PlayerRoundScore(String username, int gainPoints) {}
 
-    private AudioClip messageSound;
-
     // ---- TIMER ----
     private Timeline roundTimer; // L'objet qui gère le décompte
     private int remainingTimeSeconds; // Le temps restant en entier
@@ -199,17 +198,6 @@ public class GameController
 
         startDrawingLoop();
         initResponsiveCanvas();
-
-        try {
-            var soundURL = getClass().getResource("/sounds/Message_Short.mp3");
-            if (soundURL != null) {
-                messageSound = new AudioClip(soundURL.toExternalForm());
-            } else {
-                System.err.println("Impossible de trouver le son : /sounds/Message_Short.mp3");
-            }
-        } catch (Exception e) {
-            System.err.println("Erreur chargement son : " + e.getMessage());
-        }
     }
 
     private void startDrawingLoop() {
@@ -592,10 +580,6 @@ public class GameController
 
             // Auto Scroll vers le bas
             scrollPaneMessages.setVvalue(1.0);
-
-            if (messageSound != null) {
-                messageSound.play();
-            }
         });
     }
 
@@ -757,6 +741,11 @@ public class GameController
     // Gère l'envoi et l'affichage des messages
     private void initChatSystem()
     {
+        // 1. AJOUT DU LISTENER : Auto-scroll quand la hauteur du container change
+        messagesContainer.heightProperty().addListener((observable, oldValue, newValue) -> {
+            scrollPaneMessages.setVvalue(1.0);
+        });
+
         // action sur le bouton "Chat"
         sendChat.setOnAction(e -> handleSendAction());
 
@@ -819,20 +808,17 @@ public class GameController
 
     private void Internal_AddMessageToChat(String user, String text)
     {
-        HBox msgBox = new HBox(5); // espacement de 5px entre le pseudo et le message
+        HBox msgBox = new HBox(5);
 
         Label lblUser = new Label(user + ": ");
-        lblUser.getStyleClass().add("chatUser");    // lui ajoute la classe "chatUser" pour le css
+        lblUser.getStyleClass().add("chatUser");
 
         Label lblText = new Label(text);
         lblText.getStyleClass().add("chatText");
-        lblText.setWrapText(true); // le message passe à la ligne si trop long
+        lblText.setWrapText(true);
 
         msgBox.getChildren().addAll(lblUser, lblText);
         messagesContainer.getChildren().add(msgBox);
-
-        // Auto Scroll pour voir le dernier message à chaque fois
-        Platform.runLater(() -> scrollPaneMessages.setVvalue(1.0));
     }
 
 

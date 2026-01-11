@@ -3,6 +3,7 @@ package fr.polytech.wid.s7projectskribbl.server.actions;
 import fr.polytech.wid.s7projectskribbl.common.CommandCode;
 import fr.polytech.wid.s7projectskribbl.common.GameCommonMetadata;
 import fr.polytech.wid.s7projectskribbl.common.payloads.ChatMessagePayload;
+import fr.polytech.wid.s7projectskribbl.common.payloads.FoundWordPayload;
 import fr.polytech.wid.s7projectskribbl.common.payloads.ServerMessagePayload;
 import fr.polytech.wid.s7projectskribbl.server.GameLogic;
 import fr.polytech.wid.s7projectskribbl.server.PlayerHandler;
@@ -47,14 +48,14 @@ public class SChatMessageReceived implements ServerAction
         {
             logic.OnPlayerFoundWord(player);
 
-            ServerMessagePayload successMsg = new ServerMessagePayload(
-                    player.Username() + " guessed the word!",
-                    "#2ecc71" // Vert
-            );
-
             for (PlayerHandler p : player.Master().Clients())
             {
-                p.Out().SendCommand(CommandCode.SERVER_MESSAGE, successMsg);
+                FoundWordPayload successMsg = new FoundWordPayload(
+                        player.ID(),
+                        player.ID() == p.ID() ? logic.ChoosenWord() : null
+                );
+
+                p.Out().SendCommand(CommandCode.FOUND_WORD, successMsg);
             }
         }
         else if (distance <= GameCommonMetadata.Tolerance(logic.ChoosenWord().length()))

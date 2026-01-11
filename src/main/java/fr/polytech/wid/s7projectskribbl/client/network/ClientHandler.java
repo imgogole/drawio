@@ -2,6 +2,7 @@ package fr.polytech.wid.s7projectskribbl.client.network;
 
 import fr.polytech.wid.s7projectskribbl.client.actions.*;
 import fr.polytech.wid.s7projectskribbl.client.controller.JoinRoomController;
+import fr.polytech.wid.s7projectskribbl.client.service.SoundManager;
 import fr.polytech.wid.s7projectskribbl.common.*;
 
 import java.io.IOException;
@@ -59,6 +60,7 @@ public class ClientHandler extends Thread
         this.codeToAction.put(CommandCode.NT_DECISION.Code(), new CNTDecision());
         this.codeToAction.put(CommandCode.NT_BEGIN.Code(), new CNTBegin());
         this.codeToAction.put(CommandCode.END_ROUND_RESUME.Code(), new CEndRound());
+        this.codeToAction.put(CommandCode.FOUND_WORD.Code(), new CFoundWord());
     }
 
     public void SetDrawer(int id)
@@ -151,6 +153,10 @@ public class ClientHandler extends Thread
      */
     public void AddOrUpdate(ClientImage image)
     {
+        if (!clientImageMap.containsKey(image.ID()))
+        {
+            SoundManager.getInstance().playSound("Connected.mp3");
+        }
         clientImageMap.put(image.ID(), image);
     }
 
@@ -159,6 +165,10 @@ public class ClientHandler extends Thread
      */
     public void Remove(int id)
     {
+        if (clientImageMap.containsKey(id))
+        {
+            SoundManager.getInstance().playSound("Disconnected.mp3");
+        }
         clientImageMap.remove(id);
     }
 

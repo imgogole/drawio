@@ -15,7 +15,8 @@ public enum CommandCode
     DRAW_ACTION(10),
     NT_DECISION(11),
     NT_BEGIN(12),
-    END_ROUND_RESUME(13)
+    END_ROUND_RESUME(13),
+    FOUND_WORD(14)
     ;
 
     private final int code;
