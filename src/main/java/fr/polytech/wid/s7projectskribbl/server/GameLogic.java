@@ -269,7 +269,7 @@ public class GameLogic extends Thread
 
                 if (drawer != null && master.Clients().contains(drawer))
                 {
-                    drawerPoints = playersWhoFoundWord.size() * MAX_POINTS_ROUND / totalPlayers;
+                    drawerPoints = playersWhoFoundWord.size() * MAX_POINTS_ROUND / (2 * (totalPlayers - 1));
                     drawer.AddScore(drawerPoints);
                 }
 
