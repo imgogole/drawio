@@ -107,7 +107,9 @@ public class GameController
     @FXML private StackPane overlayGameResults;
     @FXML private VBox resultsContainer;
     @FXML private Pane confettiLayer;
-    @FXML private Button btnFinalQuit; // Pense à lier son action dans initialize()
+    @FXML private Button btnFinalQuit;
+
+    @FXML private ImageView imgWinnerAvatar;
 
     // Définition du Record pour passer les données simplement
     public record PlayerRoundScore(String username, int gainPoints) {}
@@ -1207,59 +1209,66 @@ public class GameController
         }
     }
 
-    /**
-     * Affiche le classement final et lance les confettis si le joueur a gagné.
-     */
     public void ShowGameResults() {
         stopRoundTimer();
         hideRoundEnd();
         CloseDecisionPanel(false);
 
         Platform.runLater(() -> {
-            // 2. Récupérer et trier les joueurs
             List<ClientImage> players = ClientHandler.Singleton().ClientImages();
-
-            // Tri décroissant par points
+            // Tri décroissant (Winner en premier)
             players.sort(Comparator.comparingInt(ClientImage::GetPoints).reversed());
 
-            // 3. Vider et remplir la liste
             if (resultsContainer != null) {
                 resultsContainer.getChildren().clear();
 
                 int rank = 0;
                 boolean amITheWinner = false;
 
+                // 1. GESTION DU VAINQUEUR (AVATAR EN HAUT)
+                if (!players.isEmpty()) {
+                    ClientImage winner = players.getFirst();
+
+                    if (imgWinnerAvatar != null && winner.Avatar() != null)
+                    {
+                        try {
+                            Image winnerImg = SwingFXUtils.toFXImage(winner.Avatar(), null);
+                            imgWinnerAvatar.setImage(winnerImg);
+
+                            // Masque rond pour l'avatar du vainqueur (120px / 2 = 60 radius)
+                            imgWinnerAvatar.setClip(new Circle(60, 60, 60));
+                        } catch (Exception e) {
+                            System.err.println("Erreur affichage avatar vainqueur: " + e.getMessage());
+                        }
+                    }
+                }
+
+                // 2. LISTE DES RÉSULTATS
                 for (ClientImage player : players) {
                     HBox row = createResultRow(player, rank);
                     resultsContainer.getChildren().add(row);
 
-                    // Vérifier si je suis le premier
                     if (rank == 0 && player.ID() == ClientHandler.Singleton().ID()) {
                         amITheWinner = true;
                     }
                     rank++;
                 }
 
-                // 4. Animation de victoire (Confettis)
+                // 3. ANIMATIONS
                 if (amITheWinner) {
                     startConfettiAnimation();
-                    SoundManager.getInstance().playSound("Win"); // Si tu as un son
+                    SoundManager.getInstance().playSound("Win");
                 } else {
-                    SoundManager.getInstance().playSound("Lose"); // Ou "EndGame"
+                    SoundManager.getInstance().playSound("Lose");
                 }
             }
 
-            // Gestion bouton quitter
-            if (btnFinalQuit != null) {
-                btnFinalQuit.setOnAction(e -> quitGame());
-            }
+            // Le bouton Quit a été retiré, le joueur utilisera la croix en haut à droite (btnQuit)
 
-            // 5. Afficher le panneau
             if (overlayGameResults != null) {
                 overlayGameResults.setVisible(true);
                 overlayGameResults.toFront();
 
-                // Petite animation d'entrée
                 overlayGameResults.setOpacity(0);
                 FadeTransition ft = new FadeTransition(Duration.millis(1000), overlayGameResults);
                 ft.setToValue(1.0);
@@ -1267,7 +1276,6 @@ public class GameController
             }
         });
     }
-
     /**
      * Crée une ligne de résultat avec le style approprié selon le rang.
      */
@@ -1316,43 +1324,66 @@ public class GameController
     }
 
     /**
-     * Génère une pluie de confettis colorés.
+     * Génère une pluie de confettis colorés avec un fondu de disparition à la fin.
      */
     private void startConfettiAnimation() {
         if (confettiLayer == null) return;
+        // On nettoie les anciens confettis s'il y en a
         confettiLayer.getChildren().clear();
 
-        int confettiCount = 100;
-        Color[] colors = {Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.PURPLE, Color.ORANGE, Color.CYAN};
+        int confettiCount = 150; // Un peu plus de confettis pour la fête
+        Color[] colors = {Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.PURPLE, Color.ORANGE, Color.CYAN, Color.MAGENTA};
         java.util.Random rand = new java.util.Random();
 
+        // Hauteur de chute (bas de l'écran + marge)
+        double dropHeight = overlayGameResults.getHeight() + 100;
+        // Largeur de la zone de départ
+        double spawnWidth = overlayGameResults.getWidth();
+
         for (int i = 0; i < confettiCount; i++) {
-            // Création d'un petit rectangle
-            Rectangle rect = new Rectangle(8, 8, colors[rand.nextInt(colors.length)]);
+            // 1. Création du confetti
+            Rectangle rect = new Rectangle(8 + rand.nextInt(5), 8 + rand.nextInt(5), colors[rand.nextInt(colors.length)]);
 
-            // Position de départ aléatoire (au dessus de l'écran)
-            double startX = rand.nextDouble() * overlayGameResults.getWidth();
-            double startY = -50 - rand.nextDouble() * 300; // Commence hors écran
-
-            rect.setTranslateX(startX);
-            rect.setTranslateY(startY);
+            // Position de départ aléatoire au-dessus de l'écran
+            rect.setTranslateX(rand.nextDouble() * spawnWidth);
+            rect.setTranslateY(-50 - rand.nextDouble() * 400);
 
             confettiLayer.getChildren().add(rect);
 
-            // Animation de chute
-            TranslateTransition tt = new TranslateTransition(Duration.seconds(2 + rand.nextDouble() * 2), rect);
-            tt.setToY(overlayGameResults.getHeight() + 50); // Tombe jusqu'en bas
-            tt.setInterpolator(Interpolator.EASE_IN);
+            // --- DÉFINITION DES DURÉES ---
+            // Durée totale de la chute (entre 2.5 et 5.5 secondes)
+            Duration fallDuration = Duration.millis(2500 + rand.nextInt(3000));
+            Duration fadeDuration = Duration.millis(800);
 
-            // Animation de rotation (effet feuille qui tombe)
-            RotateTransition rt = new RotateTransition(Duration.seconds(1 + rand.nextDouble()), rect);
-            rt.setByAngle(360 * (rand.nextBoolean() ? 1 : -1));
+            // --- ANIMATIONS ---
+
+            // A. Chute (Movement)
+            TranslateTransition tt = new TranslateTransition(fallDuration, rect);
+            tt.setToY(dropHeight);
+            tt.setInterpolator(Interpolator.EASE_BOTH);
+
+            // B. Rotation (Spin)
+            RotateTransition rt = new RotateTransition(Duration.millis(1000 + rand.nextInt(1500)), rect);
+            rt.setByAngle(360 * (rand.nextBoolean() ? 2 : -2)); // Tourne plus ou moins vite dans un sens ou l'autre
             rt.setCycleCount(Animation.INDEFINITE);
 
-            // On lance tout ensemble
-            ParallelTransition pt = new ParallelTransition(tt, rt);
-            pt.setDelay(Duration.millis(rand.nextInt(1000))); // Délai aléatoire pour pas que tout tombe en bloc
-            pt.setOnFinished(e -> confettiLayer.getChildren().remove(rect)); // Nettoyage
+            // C. Fondu de disparition (Fade Out)
+            FadeTransition ft = new FadeTransition(fadeDuration, rect);
+            ft.setFromValue(1.0);
+            ft.setToValue(0.0);
+            // IMPORTANT : On commence le fondu avant la fin de la chute
+            ft.setDelay(fallDuration.subtract(fadeDuration));
+
+            // --- COMBINAISON ---
+            // On lance Movement + Rotation + Fade en parallèle
+            ParallelTransition pt = new ParallelTransition(tt, rt, ft);
+
+            // Délai de départ aléatoire pour que ça ne tombe pas en bloc
+            pt.setDelay(Duration.millis(rand.nextInt(1500)));
+
+            // Nettoyage : on retire l'élément du Pane quand l'animation est finie
+            pt.setOnFinished(e -> confettiLayer.getChildren().remove(rect));
+
             pt.play();
         }
     }
