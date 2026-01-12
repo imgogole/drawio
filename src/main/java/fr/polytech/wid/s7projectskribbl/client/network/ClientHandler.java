@@ -104,6 +104,14 @@ public class ClientHandler extends Thread
         return clientImageMap.values().stream().filter(ClientImage::IsDrawer).findFirst().orElse(null);
     }
 
+    public void SetAllFoundFalse()
+    {
+        for (ClientImage client : clientImageMap.values())
+        {
+            client.SetFound(false);
+        }
+    }
+
     @Override
     public void run()
     {

@@ -58,11 +58,6 @@ public class ClientHandlerIn extends Thread
         }
         catch (IOException e)
         {
-            System.err.println("Erreur IO ClientHandlerIn: " + e.getMessage());
-        }
-        catch (Exception e)
-        {
-            System.err.println("Erreur: ");
             e.printStackTrace();
         }
     }

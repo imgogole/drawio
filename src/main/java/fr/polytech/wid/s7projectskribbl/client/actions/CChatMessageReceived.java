@@ -16,7 +16,7 @@ public class CChatMessageReceived implements ClientAction
         ClientImage client = ClientHandler.Singleton().GetClientImage(chatMessagePayload.ID());
         if (client != null)
         {
-            GameController.Instance().AddMessageToChat(client.Username(), chatMessagePayload.Message());
+            GameController.Instance().AddMessageToChat(client, chatMessagePayload.Message());
         }
     }
 }

@@ -12,6 +12,7 @@ public class ClientImage
     private final BufferedImage avatar;
     private boolean ready = false;
     private boolean drawer = false;
+    private boolean found = false;
     private int points = 0;
 
     public ClientImage(int ID, String Username, BufferedImage Avatar, boolean ready)
@@ -40,6 +41,16 @@ public class ClientImage
     public boolean IsDrawer()
     {
         return drawer;
+    }
+
+    public void SetFound(boolean found)
+    {
+        this.found = found;
+    }
+
+    public boolean Found()
+    {
+        return found;
     }
 
     public void SetDrawer(boolean drawer)

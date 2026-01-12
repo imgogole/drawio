@@ -6,8 +6,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import fr.polytech.wid.s7projectskribbl.common.*;
 
@@ -15,13 +18,29 @@ public class ClientApplication extends Application
 {
     private static Stage stage;
 
+    // CACHE : Stocke les vues déjà chargées (Nom du FXML -> Racine de la scène)
+    private static final Map<String, Parent> sceneCache = new HashMap<>();
+
     @Override
     public void start(Stage primaryStage) throws IOException
     {
         stage = primaryStage;
-        LoadScene("JoinRoomView.fxml");
         stage.setTitle(GameCommonMetadata.GameName);
         stage.setMaximized(true);
+
+        try
+        {
+            PreloadScene("JoinRoomView.fxml", "styles.css");
+            PreloadScene("WaitingRoomView.fxml", "styles.css");
+            PreloadScene("GameView.fxml", "styles.css");
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erreur fatal lors du préchargement : " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        LoadScene("JoinRoomView.fxml");
 
         stage.setOnCloseRequest(event ->
         {
@@ -37,6 +56,18 @@ public class ClientApplication extends Application
         });
         stage.show();
     }
+    public static void PreloadScene(String fxml, String css) throws IOException
+    {
+        if (sceneCache.containsKey(fxml)) return;
+        FXMLLoader loader = new FXMLLoader(ClientApplication.class.getResource(fxml));
+        Parent root = loader.load();
+        URL cssURL = ClientApplication.class.getResource(css);
+        if (cssURL != null) {
+            root.getStylesheets().add(cssURL.toExternalForm());
+        }
+
+        sceneCache.put(fxml, root);
+    }
 
     public static void LoadScene(String fxml) throws IOException
     {
@@ -45,10 +76,22 @@ public class ClientApplication extends Application
 
     public static void LoadScene(String fxml, String css) throws IOException
     {
-        FXMLLoader loader = new FXMLLoader(
-                ClientApplication.class.getResource(fxml)
-        );
-        Parent root = loader.load();
+        Parent root;
+
+        if (sceneCache.containsKey(fxml))
+        {
+            root = sceneCache.get(fxml);
+        }
+        else
+        {
+            FXMLLoader loader = new FXMLLoader(ClientApplication.class.getResource(fxml));
+            root = loader.load();
+
+            URL cssURL = ClientApplication.class.getResource(css);
+            if (cssURL != null) {
+                root.getStylesheets().add(cssURL.toExternalForm());
+            }
+        }
 
         Scene scene = stage.getScene();
         if (scene == null)
@@ -59,13 +102,6 @@ public class ClientApplication extends Application
         else
         {
             scene.setRoot(root);
-        }
-
-        URL cssURL = ClientApplication.class.getResource(css);
-        if (cssURL != null)
-        {
-            String cssPath = cssURL.toExternalForm();;
-            scene.getStylesheets().setAll(cssPath);
         }
     }
 }

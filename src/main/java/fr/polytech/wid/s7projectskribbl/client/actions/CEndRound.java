@@ -14,6 +14,8 @@ public class CEndRound implements ClientAction
     @Override
     public void Execute(byte[] data)
     {
+        ClientHandler.Singleton().SetAllFoundFalse();
+
         EndRoundPayload payload = new EndRoundPayload();
         payload.Parse(data);
         if (GameController.Instance() == null) return;

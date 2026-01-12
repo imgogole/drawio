@@ -531,17 +531,17 @@ public class GameController
         Circle clip = new Circle(27.5, 27.5, 27.5);
         avatarView.setClip(clip);
 
-        VBox infoBox = new VBox(3); // Espacement vertical réduit entre les textes
+        VBox infoBox = new VBox(3);
         infoBox.setAlignment(Pos.CENTER_LEFT);
 
         Label nameLabel = new Label(player.Username());
         nameLabel.getStyleClass().add("orangeText");
-        nameLabel.setStyle("-fx-font-size: 16px;"); // Ajusté pour la place
+        nameLabel.setStyle("-fx-font-size: 16px;");
 
-        String statusText = player.IsDrawer() ? "Drawing..." : ("Guessing") ;
+        String statusText = player.IsDrawer() ? "Drawing..." : (player.Found() ? "Found!" : "Guessing...") ;
         Label statusLabel = new Label(statusText);
-        statusLabel.getStyleClass().add("grayText");
-        statusLabel.setStyle("-fx-font-size: 12px; -fx-font-style: italic;");
+        statusLabel.getStyleClass().add("lightGrayText");
+        statusLabel.setStyle("-fx-font-size: 14px; -fx-font-style: italic;");
 
         HBox scoreBox = new HBox(5);
         scoreBox.setAlignment(Pos.CENTER_LEFT);
@@ -784,7 +784,7 @@ public class GameController
         ClientHandler.Singleton().Out().SendCommand(CommandCode.CHAT_MESSAGE_SENT, chatMessagePayload);
     }
 
-    public void AddMessageToChat(String sender, String message)
+    public void AddMessageToChat(ClientImage sender, String message)
     {
         Platform.runLater(() -> {
             Internal_AddMessageToChat(sender, message);
@@ -815,15 +815,15 @@ public class GameController
         });
     }
 
-    private void Internal_AddMessageToChat(String user, String text)
+    private void Internal_AddMessageToChat(ClientImage user, String text)
     {
         HBox msgBox = new HBox(5);
 
-        Label lblUser = new Label(user + ": ");
-        lblUser.getStyleClass().add("chatUser");
+        Label lblUser = new Label(user.Username() + ": ");
+        lblUser.getStyleClass().add(user.Found() ? "chatUserF" : "chatUserNF");
 
         Label lblText = new Label(text);
-        lblText.getStyleClass().add("chatText");
+        lblText.getStyleClass().add(user.Found() ? "chatTextF" : "chatTextNF");
         lblText.setWrapText(true);
 
         msgBox.getChildren().addAll(lblUser, lblText);

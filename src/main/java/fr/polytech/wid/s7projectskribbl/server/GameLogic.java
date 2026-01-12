@@ -313,14 +313,7 @@ public class GameLogic extends Thread
 
                 playerIndex++;
             }
-            if (roundRunning)
-            {
-                round++;
-            }
-            else
-            {
-                break;
-            }
+            round++;
         }
 
         for (PlayerHandler p : master.Clients())

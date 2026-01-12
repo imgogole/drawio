@@ -16,6 +16,11 @@
     -fx-text-fill: #595959;
 }
 
+.lightGrayText{
+    -fx-font-size: 25px;
+    -fx-text-fill: #9a9a9a;
+}
+
 .orangeText{
     -fx-font-size: 25px;
     -fx-text-fill: #E59700;
@@ -198,15 +203,26 @@
 
 /* ================= CHAT & GAME (Existants) ================= */
 
-.chatUser{
+.chatUserNF{
     -fx-font-size: 18px;
     -fx-text-fill: #E59700;
     -fx-font-weight: bold;
 }
 
-.chatText{
+.chatUserF{
+    -fx-font-size: 18px;
+    -fx-text-fill: #52ab1b;
+    -fx-font-weight: bold;
+}
+
+.chatTextNF{
     -fx-font-size: 18px;
     -fx-text-fill: #D3DAD9;
+}
+
+.chatTextF{
+    -fx-font-size: 18px;
+    -fx-text-fill: #b1fa84;
 }
 
 

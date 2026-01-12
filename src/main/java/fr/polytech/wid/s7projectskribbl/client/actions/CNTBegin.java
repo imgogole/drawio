@@ -1,6 +1,7 @@
 package fr.polytech.wid.s7projectskribbl.client.actions;
 
 import fr.polytech.wid.s7projectskribbl.client.controller.GameController;
+import fr.polytech.wid.s7projectskribbl.client.network.ClientHandler;
 import fr.polytech.wid.s7projectskribbl.client.service.SoundManager;
 import fr.polytech.wid.s7projectskribbl.common.payloads.NTBeginPayload;
 
