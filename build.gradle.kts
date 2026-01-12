@@ -25,7 +25,6 @@ tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
 
-
 application {
     mainModule.set("fr.polytech.wid.s7projectskribbl")
     mainClass.set("fr.polytech.wid.s7projectskribbl.client.Launcher")
@@ -47,10 +46,19 @@ tasks.withType<Test> {
 }
 
 jlink {
-    imageZip.set(layout.buildDirectory.file("/distributions/app-${javafx.platform.classifier}.zip"))
+    imageZip.set(layout.buildDirectory.file("distributions/SkribblApp-${javafx.platform.classifier}.zip"))
+
     options.set(listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages"))
+
     launcher {
-        name = "app"
+        name = "SkribblClient"
+    }
+
+    secondaryLauncher {
+        name = "SkribblServer"
+        val launcherData = this as org.beryx.jlink.data.SecondaryLauncherData
+        launcherData.mainClass = "fr.polytech.wid.s7projectskribbl.server.Main"
+        launcherData.moduleName = "fr.polytech.wid.s7projectskribbl"
     }
 }
 

@@ -17,7 +17,7 @@ import java.util.List;
  * Chaque fois qu'une partie veut être créé, il suffit de lancer un programme main qui instancie cette classe, puis d'appeler {@code GameMaster.Begin()}.
  * </p>
  *
- * @author Dalil NAAMNA
+ * @author Dalil NAAMNA (moi même)
  */
 public class GameMaster
 {
@@ -34,7 +34,7 @@ public class GameMaster
 
     private int minimumPlayers;
 
-    public GameMaster(int port, int loggerPort)
+    public GameMaster(int port)
     {
         this.timestamp = Instant.now().getEpochSecond();
         this.port = port;
