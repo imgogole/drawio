@@ -10,6 +10,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.FlowPane;
 import javafx.embed.swing.SwingFXUtils;
@@ -41,6 +42,9 @@ public class WaitingRoomController {
     @FXML
     private Button btnQuit;
 
+    @FXML
+    private ImageView logoImage;
+
     private boolean isReady = false;
 
     private static WaitingRoomController instance;
@@ -64,6 +68,12 @@ public class WaitingRoomController {
         });
 
         Internal_UpdatePlayerList();
+
+        var imgUrl = getClass().getResource("/images/drawio_glow.png");
+
+        if (imgUrl != null) {
+            logoImage.setImage(new Image(imgUrl.toExternalForm()));
+        }
     }
     /**
      Méthode principale pour mettre à jour l'affichage des joueurs

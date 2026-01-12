@@ -16,6 +16,8 @@ import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javafx.util.Duration;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +39,9 @@ public class JoinRoomController {
 
     @FXML
     private Button joinButton;
+
+    @FXML
+    private ImageView logoImage;
 
     private static JoinRoomController instance;
 
@@ -71,6 +76,14 @@ public class JoinRoomController {
 
         // Action du bouton Rejoindre
         joinButton.setOnAction(event -> handleJoin());
+
+
+
+        var imgUrl = getClass().getResource("/images/drawio_glow.png");
+
+        if (imgUrl != null) {
+            logoImage.setImage(new Image(imgUrl.toExternalForm()));
+        }
     }
 
     private void setupTooltip() {

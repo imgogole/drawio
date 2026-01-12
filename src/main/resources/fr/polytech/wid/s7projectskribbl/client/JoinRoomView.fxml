@@ -5,6 +5,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Circle?>
 
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <StackPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="fr.polytech.wid.s7projectskribbl.client.controller.JoinRoomController"
@@ -14,6 +16,11 @@
         <padding>
             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
         </padding>
+        <ImageView fx:id="logoImage"
+                   fitHeight="125.0"
+                   fitWidth="300.0"
+                   pickOnBounds="true"
+                   preserveRatio="true" />
 
         <Label text="Join a Room" styleClass="titre"/>
 
