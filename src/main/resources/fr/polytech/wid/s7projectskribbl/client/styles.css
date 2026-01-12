@@ -506,3 +506,46 @@
     -fx-font-size: 18px;
     -fx-font-style: italic;
 }
+
+/* --- Lignes de classement général --- */
+.result-row {
+    -fx-background-color: #3E3E3E;
+    -fx-background-radius: 10px;
+    -fx-padding: 10px 20px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0, 0, 1);
+}
+
+/* --- Styles spécifiques Top 3 --- */
+.rank-gold {
+    -fx-background-color: linear-gradient(to right, #FFD700, #FDB931); /* Dégradé Or */
+    -fx-border-color: #fff;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.6), 15, 0, 0, 0);
+}
+
+.rank-silver {
+    -fx-background-color: linear-gradient(to right, #E0E0E0, #BDBDBD); /* Dégradé Argent */
+    -fx-effect: dropshadow(gaussian, rgba(192, 192, 192, 0.4), 10, 0, 0, 0);
+}
+
+.rank-bronze {
+    -fx-background-color: linear-gradient(to right, #CD7F32, #A0522D); /* Dégradé Bronze */
+}
+
+/* Texte dans les résultats */
+.result-name {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+.result-points {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+/* Pour l'or, on met le texte en foncé pour le contraste */
+.rank-gold .result-name, .rank-gold .result-points {
+    -fx-text-fill: #543015;
+}

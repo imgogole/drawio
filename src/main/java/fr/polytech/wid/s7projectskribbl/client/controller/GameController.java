@@ -25,6 +25,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.geometry.Pos;
 import javafx.scene.shape.Rectangle;
+
+import java.util.Comparator;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -101,6 +103,11 @@ public class GameController
     @FXML private Label wordTitle;
 
     @FXML private VBox scoreListContainer;
+
+    @FXML private StackPane overlayGameResults;
+    @FXML private VBox resultsContainer;
+    @FXML private Pane confettiLayer;
+    @FXML private Button btnFinalQuit; // Pense à lier son action dans initialize()
 
     // Définition du Record pour passer les données simplement
     public record PlayerRoundScore(String username, int gainPoints) {}
@@ -1197,6 +1204,156 @@ public class GameController
         if (currentRound != null)
         {
             currentRound.setText("1");
+        }
+    }
+
+    /**
+     * Affiche le classement final et lance les confettis si le joueur a gagné.
+     */
+    public void ShowGameResults() {
+        stopRoundTimer();
+        hideRoundEnd();
+        CloseDecisionPanel(false);
+
+        Platform.runLater(() -> {
+            // 2. Récupérer et trier les joueurs
+            List<ClientImage> players = ClientHandler.Singleton().ClientImages();
+
+            // Tri décroissant par points
+            players.sort(Comparator.comparingInt(ClientImage::GetPoints).reversed());
+
+            // 3. Vider et remplir la liste
+            if (resultsContainer != null) {
+                resultsContainer.getChildren().clear();
+
+                int rank = 0;
+                boolean amITheWinner = false;
+
+                for (ClientImage player : players) {
+                    HBox row = createResultRow(player, rank);
+                    resultsContainer.getChildren().add(row);
+
+                    // Vérifier si je suis le premier
+                    if (rank == 0 && player.ID() == ClientHandler.Singleton().ID()) {
+                        amITheWinner = true;
+                    }
+                    rank++;
+                }
+
+                // 4. Animation de victoire (Confettis)
+                if (amITheWinner) {
+                    startConfettiAnimation();
+                    SoundManager.getInstance().playSound("Win"); // Si tu as un son
+                } else {
+                    SoundManager.getInstance().playSound("Lose"); // Ou "EndGame"
+                }
+            }
+
+            // Gestion bouton quitter
+            if (btnFinalQuit != null) {
+                btnFinalQuit.setOnAction(e -> quitGame());
+            }
+
+            // 5. Afficher le panneau
+            if (overlayGameResults != null) {
+                overlayGameResults.setVisible(true);
+                overlayGameResults.toFront();
+
+                // Petite animation d'entrée
+                overlayGameResults.setOpacity(0);
+                FadeTransition ft = new FadeTransition(Duration.millis(1000), overlayGameResults);
+                ft.setToValue(1.0);
+                ft.play();
+            }
+        });
+    }
+
+    /**
+     * Crée une ligne de résultat avec le style approprié selon le rang.
+     */
+    private HBox createResultRow(ClientImage player, int rank) {
+        HBox row = new HBox();
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.setSpacing(20);
+
+        // Style de base
+        row.getStyleClass().add("result-row");
+
+        // Styles spécifiques Top 3
+        if (rank == 0) row.getStyleClass().add("rank-gold");
+        else if (rank == 1) row.getStyleClass().add("rank-silver");
+        else if (rank == 2) row.getStyleClass().add("rank-bronze");
+
+        // --- Avatar (Optionnel, reprend ton code existant) ---
+        ImageView avatarView = new ImageView();
+        if(player.Avatar() != null) {
+            try {
+                avatarView.setImage(SwingFXUtils.toFXImage(player.Avatar(), null));
+            } catch(Exception e){}
+        }
+        avatarView.setFitWidth(40); avatarView.setFitHeight(40);
+        avatarView.setClip(new Circle(20, 20, 20));
+
+        // --- Rang (#1, #2...) ---
+        Label lblRank = new Label("#" + (rank + 1));
+        lblRank.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: " + (rank==0 ? "#543015" : "white") + ";");
+        lblRank.setMinWidth(40);
+
+        // --- Pseudo ---
+        Label lblName = new Label(player.Username());
+        lblName.getStyleClass().add("result-name");
+
+        // Espaceur
+        Pane spacer = new Pane();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        // --- Points ---
+        Label lblPoints = new Label(player.GetPoints() + " pts");
+        lblPoints.getStyleClass().add("result-points");
+
+        row.getChildren().addAll(lblRank, avatarView, lblName, spacer, lblPoints);
+        return row;
+    }
+
+    /**
+     * Génère une pluie de confettis colorés.
+     */
+    private void startConfettiAnimation() {
+        if (confettiLayer == null) return;
+        confettiLayer.getChildren().clear();
+
+        int confettiCount = 100;
+        Color[] colors = {Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.PURPLE, Color.ORANGE, Color.CYAN};
+        java.util.Random rand = new java.util.Random();
+
+        for (int i = 0; i < confettiCount; i++) {
+            // Création d'un petit rectangle
+            Rectangle rect = new Rectangle(8, 8, colors[rand.nextInt(colors.length)]);
+
+            // Position de départ aléatoire (au dessus de l'écran)
+            double startX = rand.nextDouble() * overlayGameResults.getWidth();
+            double startY = -50 - rand.nextDouble() * 300; // Commence hors écran
+
+            rect.setTranslateX(startX);
+            rect.setTranslateY(startY);
+
+            confettiLayer.getChildren().add(rect);
+
+            // Animation de chute
+            TranslateTransition tt = new TranslateTransition(Duration.seconds(2 + rand.nextDouble() * 2), rect);
+            tt.setToY(overlayGameResults.getHeight() + 50); // Tombe jusqu'en bas
+            tt.setInterpolator(Interpolator.EASE_IN);
+
+            // Animation de rotation (effet feuille qui tombe)
+            RotateTransition rt = new RotateTransition(Duration.seconds(1 + rand.nextDouble()), rect);
+            rt.setByAngle(360 * (rand.nextBoolean() ? 1 : -1));
+            rt.setCycleCount(Animation.INDEFINITE);
+
+            // On lance tout ensemble
+            ParallelTransition pt = new ParallelTransition(tt, rt);
+            pt.setDelay(Duration.millis(rand.nextInt(1000))); // Délai aléatoire pour pas que tout tombe en bloc
+            pt.setOnFinished(e -> confettiLayer.getChildren().remove(rect)); // Nettoyage
+            pt.play();
         }
     }
 }
