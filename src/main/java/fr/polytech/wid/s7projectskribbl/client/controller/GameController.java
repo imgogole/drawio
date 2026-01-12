@@ -343,26 +343,24 @@ public class GameController
     /**
      * Configure et démarre le Timeline pour le décompte.
      */
-    private void startRoundTimer() {
-        // Sécurité : on arrête l'ancien timer s'il tourne encore
+    private void startRoundTimer()
+    {
         stopRoundTimer();
 
-        roundTimer = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+        roundTimer = new Timeline(new KeyFrame(Duration.seconds(1), event ->
+        {
             remainingTimeSeconds--;
 
-            // Mise à jour de l'affichage
             updateTimerLabel();
 
-            // Gestion des 10 dernières secondes (Tic-tac)
-            if (remainingTimeSeconds <= 10 && remainingTimeSeconds > 0) {
+            if (remainingTimeSeconds <= 10 && remainingTimeSeconds > 0)
+            {
                 playTickTockSound();
             }
 
-            // Fin du temps
-            if (remainingTimeSeconds <= 0) {
+            if (remainingTimeSeconds <= 0)
+            {
                 stopRoundTimer();
-                // Optionnel : Tu peux ajouter une logique locale ici "Time's up"
-                // mais généralement le serveur envoie le paquet de fin de round.
             }
         }));
 
@@ -407,14 +405,7 @@ public class GameController
      * Placeholder pour jouer le son.
      */
     private void playTickTockSound() {
-        // TODO: Insérer ici le code pour jouer le son (Media / AudioClip)
-        // System.out.println("TICK TOCK - " + remainingTimeSeconds);
-        /*
-        try {
-            AudioClip clip = new AudioClip(getClass().getResource("/sounds/tick.wav").toExternalForm());
-            clip.play();
-        } catch (Exception e) { e.printStackTrace(); }
-        */
+        SoundManager.getInstance().playSound("Tick");
     }
 
     /**
