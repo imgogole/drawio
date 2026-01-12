@@ -161,6 +161,25 @@
                     </VBox>
 
                 </StackPane>
+                <StackPane fx:id="overlayGameResults" visible="false" styleClass="overlay-dim-background">
+                    <Pane fx:id="confettiLayer" mouseTransparent="true" />
+
+                    <VBox alignment="CENTER" spacing="20" maxWidth="700" maxHeight="600">
+                        <Label text="GAME OVER" style="-fx-font-size: 50px; -fx-text-fill: #f0c50d; -fx-font-weight: 900; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 10, 0, 0, 0);"/>
+
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                                    style="-fx-background-color: transparent; -fx-background: transparent;"
+                                    maxHeight="400" maxWidth="500">
+                            <content>
+                                <VBox fx:id="resultsContainer" spacing="10" alignment="TOP_CENTER" style="-fx-padding: 10px;"/>
+                            </content>
+                        </ScrollPane>
+
+                        <HBox spacing="20" alignment="CENTER">
+                            <Button fx:id="btnFinalQuit" text="Main Menu" styleClass="cancelButton"/>
+                        </HBox>
+                    </VBox>
+                </StackPane>
             </StackPane>
         </VBox>
 

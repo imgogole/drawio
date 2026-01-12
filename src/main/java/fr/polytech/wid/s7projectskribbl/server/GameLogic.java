@@ -318,6 +318,19 @@ public class GameLogic extends Thread
 
         for (PlayerHandler p : master.Clients())
         {
+            p.Out().SendCommand(CommandCode.SHOW_END_GAME_RESULT, null);
+        }
+
+        try
+        {
+            Thread.sleep((int)END_GAME_TIME * 1000);
+        }
+        catch (InterruptedException e)
+        {
+        }
+
+        for (PlayerHandler p : master.Clients())
+        {
             p.Out().SendCommand(CommandCode.END_GAME, null);
         }
 

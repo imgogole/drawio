@@ -17,7 +17,8 @@ public enum CommandCode
     NT_BEGIN(12),
     END_ROUND_RESUME(13),
     FOUND_WORD(14),
-    END_GAME(15),
+    SHOW_END_GAME_RESULT(15),
+    END_GAME(16),
     ;
 
     private final int code;
