@@ -28,12 +28,10 @@ import javafx.scene.shape.Rectangle;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import javafx.scene.media.AudioClip;
-
-import fr.polytech.wid.s7projectskribbl.common.payloads.DrawPayload;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.animation.Interpolator;
-import javafx.scene.control.ProgressIndicator;
-import fr.polytech.wid.s7projectskribbl.client.network.ClientImage;
 
 public class GameController
 {
@@ -502,59 +500,75 @@ public class GameController
         playerListContainer.getChildren().clear();
 
         for (ClientImage player : clients) {
-            VBox card = createGamePlayerCard(player);
+            HBox card = createGamePlayerCard(player);
             playerListContainer.getChildren().add(card);
         }
     }
 
-    private VBox createGamePlayerCard(ClientImage player) {
-        VBox card = new VBox();
+    private HBox createGamePlayerCard(ClientImage player) {
+        HBox card = new HBox();
 
-        // --- STYLE & TAILLE FIXE ---
+        // --- STYLE & DIMENSIONS ---
         card.getStyleClass().add("userBox");
-        card.setAlignment(Pos.CENTER);
+        card.setAlignment(Pos.CENTER_LEFT);
         card.setPadding(new Insets(10));
-        card.setSpacing(5);
+        card.setSpacing(15); // Espace entre l'avatar et le texte
 
-        // Fixe la taille de la carte (Responsive mais contraint)
-        card.setPrefWidth(160);
+        // On élargit la carte pour accueillir l'avatar (passé de 160 à 220)
+        card.setPrefWidth(220);
         card.setPrefHeight(100);
-        card.setMinWidth(160);
+        card.setMinWidth(220);
         card.setMinHeight(100);
 
-        // --- PSEUDO ---
+        // --- 1. GESTION DE L'AVATAR ---
+        ImageView avatarView = new ImageView();
+        avatarView.setFitWidth(55);  // Taille du cercle
+        avatarView.setFitHeight(55);
+        avatarView.setPreserveRatio(true);
+        avatarView.setSmooth(true);
+
+        // Conversion BufferedImage -> Image JavaFX
+        if (player.Avatar() != null) {
+            try {
+                Image img = SwingFXUtils.toFXImage(player.Avatar(), null);
+                avatarView.setImage(img);
+            } catch (Exception e) {
+                System.err.println("Erreur chargement avatar : " + e.getMessage());
+            }
+        }
+
+        Circle clip = new Circle(27.5, 27.5, 27.5);
+        avatarView.setClip(clip);
+
+        VBox infoBox = new VBox(3); // Espacement vertical réduit entre les textes
+        infoBox.setAlignment(Pos.CENTER_LEFT);
+
         Label nameLabel = new Label(player.Username());
         nameLabel.getStyleClass().add("orangeText");
-        nameLabel.setStyle("-fx-font-size: 18px;"); // Un peu plus petit pour rentrer
+        nameLabel.setStyle("-fx-font-size: 16px;"); // Ajusté pour la place
 
-        // --- PLACEHOLDER STATUT (Trouvé / Dessine) ---
-        // "Plus tard tu remplaceras cette condition par player.HasFoundWord()"
         String statusText = player.IsDrawer() ? "Drawing..." : ("Guessing") ;
-
         Label statusLabel = new Label(statusText);
         statusLabel.getStyleClass().add("grayText");
-        statusLabel.setStyle("-fx-font-size: 14px; -fx-font-style: italic;");
+        statusLabel.setStyle("-fx-font-size: 12px; -fx-font-style: italic;");
 
-        // --- PLACEHOLDER POINTS ---
         HBox scoreBox = new HBox(5);
-        scoreBox.setAlignment(Pos.CENTER);
+        scoreBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label pointsLabel = new Label(String.valueOf(player.GetPoints()) );
+        Label pointsLabel = new Label(String.valueOf(player.GetPoints()));
         pointsLabel.getStyleClass().add("whiteText");
-        pointsLabel.setStyle("-fx-font-size: 16px;");
+        pointsLabel.setStyle("-fx-font-size: 14px;");
 
         Label ptsSuffix = new Label("pts");
         ptsSuffix.getStyleClass().add("grayText");
-        ptsSuffix.setStyle("-fx-font-size: 14px;");
+        ptsSuffix.setStyle("-fx-font-size: 12px;");
 
         scoreBox.getChildren().addAll(pointsLabel, ptsSuffix);
-
-        // Assemblage
-        card.getChildren().addAll(nameLabel, statusLabel, scoreBox);
+        infoBox.getChildren().addAll(nameLabel, statusLabel, scoreBox);
+        card.getChildren().addAll(avatarView, infoBox);
 
         return card;
     }
-
     /**
      * Ajoute un message système venant du serveur avec une couleur spécifique.
      * @param message Le texte à afficher.

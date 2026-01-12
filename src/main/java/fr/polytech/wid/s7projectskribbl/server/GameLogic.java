@@ -12,7 +12,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static fr.polytech.wid.s7projectskribbl.common.GameCommonMetadata.TOTAL_ROUND;
+import static fr.polytech.wid.s7projectskribbl.common.GameCommonMetadata.*;
 
 public class GameLogic extends Thread
 {
@@ -31,6 +31,7 @@ public class GameLogic extends Thread
     private final Set<Integer> playersWhoFoundWord = new HashSet<>();
     private final Map<Integer, Long> playerFindTimes = new HashMap<>();
     private long roundStartTime;
+    boolean cancelRound = false;
 
     public GameLogic(GameMaster master)
     {
@@ -130,8 +131,8 @@ public class GameLogic extends Thread
 
         if (drawer != null && player.ID() == drawer.ID())
         {
-            System.out.println("Le dessinateur a quitté la partie ! Fin du round.");
             this.roundRunning = false;
+            this.cancelRound = true;
         }
         else
         {
@@ -148,7 +149,6 @@ public class GameLogic extends Thread
 
             if (playersWhoFoundWord.size() >= totalGuessers && totalGuessers > 0)
             {
-                System.out.println("Le dernier joueur cherchant s'est déconnecté. Fin du round.");
                 this.roundRunning = false;
             }
         }
@@ -182,7 +182,7 @@ public class GameLogic extends Thread
                     continue;
                 }
 
-                System.out.println("C'est au tour de " + drawer.Username() + " de choisir.");
+                System.out.println("It's " + drawer.Username() + " turn.");
 
                 wordsToChoose.clear();
                 for (int i = 0; i < 3; i++)
@@ -229,7 +229,7 @@ public class GameLogic extends Thread
                     continue;
                 }
 
-                System.out.println("Mot choisi : " + chosenWord);
+                System.out.println("Choosen word : " + chosenWord);
                 String maskedWord = MaskWord(chosenWord);
 
                 for (PlayerHandler p : master.Clients())
@@ -242,6 +242,7 @@ public class GameLogic extends Thread
 
                 this.canDraw = true;
                 this.roundRunning = true;
+                this.cancelRound = false;
                 this.playersWhoFoundWord.clear();
                 this.playerFindTimes.clear();
                 this.roundStartTime = System.currentTimeMillis();
@@ -262,14 +263,13 @@ public class GameLogic extends Thread
                 this.canDraw = false;
                 this.roundRunning = false;
 
-                System.out.println("Fin du tour. Calcul et envoi des résultats...");
-
                 List<EndRoundPayload.PlayerScoreInfo> scoresInfo = new ArrayList<>();
                 int drawerPoints = 0;
+                int totalPlayers = master.Clients().size();
 
                 if (drawer != null && master.Clients().contains(drawer))
                 {
-                    drawerPoints = playersWhoFoundWord.size() * 50;
+                    drawerPoints = playersWhoFoundWord.size() * MAX_POINTS_ROUND / totalPlayers;
                     drawer.AddScore(drawerPoints);
                 }
 
@@ -277,18 +277,21 @@ public class GameLogic extends Thread
                 {
                     int gained = 0;
 
-                    if (drawer != null && p.ID() == drawer.ID())
+                    if (!cancelRound)
                     {
-                        gained = drawerPoints;
-                    }
-                    else if (playersWhoFoundWord.contains(p.ID()))
-                    {
-                        long timeTaken = playerFindTimes.getOrDefault(p.ID(), roundStartTime) - roundStartTime;
-                        float ratio = 1.0f - ((float)timeTaken / durationMs);
-                        gained = (int)(ratio * 500);
-                        if (gained < 50) gained = 50;
+                        if (drawer != null && p.ID() == drawer.ID())
+                        {
+                            gained = drawerPoints;
+                        }
+                        else if (playersWhoFoundWord.contains(p.ID()))
+                        {
+                            long timeTaken = playerFindTimes.getOrDefault(p.ID(), roundStartTime) - roundStartTime;
+                            float ratio = 1.0f - ((float)timeTaken / durationMs);
+                            gained = (int)(ratio * MAX_POINTS_ROUND);
+                            if (gained < MIN_POINTS_ROUND) gained = MIN_POINTS_ROUND;
 
-                        p.AddScore(gained);
+                            p.AddScore(gained);
+                        }
                     }
 
                     scoresInfo.add(new EndRoundPayload.PlayerScoreInfo(p.ID(), gained, p.Score()));
@@ -302,7 +305,7 @@ public class GameLogic extends Thread
 
                 try
                 {
-                    Thread.sleep(5000);
+                    Thread.sleep((int)END_INTERLUDE_TIME * 1000);
                 }
                 catch (InterruptedException e)
                 {
@@ -310,10 +313,22 @@ public class GameLogic extends Thread
 
                 playerIndex++;
             }
-            round++;
+            if (roundRunning)
+            {
+                round++;
+            }
+            else
+            {
+                break;
+            }
         }
 
-        System.out.println("Fin de la partie !");
+        for (PlayerHandler p : master.Clients())
+        {
+            p.Out().SendCommand(CommandCode.END_GAME, null);
+        }
+
+        System.out.println("End game");
     }
 
     public void SetWordChoice(int choice)

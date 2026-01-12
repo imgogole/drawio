@@ -16,6 +16,11 @@ public final class GameCommonMetadata
 
     public static final int TOTAL_ROUND = 5;
     public static final float ROUND_TIME = 90.0f;
+    public static final float END_INTERLUDE_TIME = 5.0f;
+
+    public static final int MAX_POINTS_ROUND = 500;
+    public static final int MIN_POINTS_ROUND = 5;
+
     public static int Tolerance(int length)
     {
         int tolerance = 2;

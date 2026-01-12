@@ -61,6 +61,7 @@ public class ClientHandler extends Thread
         this.codeToAction.put(CommandCode.NT_BEGIN.Code(), new CNTBegin());
         this.codeToAction.put(CommandCode.END_ROUND_RESUME.Code(), new CEndRound());
         this.codeToAction.put(CommandCode.FOUND_WORD.Code(), new CFoundWord());
+        this.codeToAction.put(CommandCode.END_GAME.Code(), new CEndGame());
     }
 
     public void SetDrawer(int id)

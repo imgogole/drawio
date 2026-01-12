@@ -150,7 +150,6 @@ public class GameMaster
         TerminateWaitForPlayers();
 
         promptDebugGameMaster.Close();
-        System.out.println("La partie a été fermée.");
     }
 
     /**
@@ -260,7 +259,9 @@ public class GameMaster
             removed = true;
         }
 
-        System.out.println("Déconnexion détectée : " + player.Username() + " (ID: " + player.ID() + ")" + ", Reason: " + type);
+        if (gameLogic != null) gameLogic.OnPlayerDisconnected(player);
+
+        System.out.println("Detected disconnection : " + player.Username() + " (ID: " + player.ID() + ")" + ", Reason: " + type);
 
         WarnDisconnectedClient(player.ID());
         player.TerminateConnection(type);
