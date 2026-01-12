@@ -152,7 +152,7 @@
 
                     <VBox alignment="CENTER" spacing="20">
                         <Label fx:id="lblDecisionWait"
-                               text="Un joueur choisit..."
+                               text="A player is choosing..."
                                styleClass="overlay-title-large"
                                wrapText="true"
                                textAlignment="CENTER"/>

@@ -201,27 +201,27 @@
 }
 
 
-/* ================= CHAT & GAME (Existants) ================= */
+/* ================= CHAT & GAME ================= */
 
 .chatUserNF{
-    -fx-font-size: 18px;
+    -fx-font-size: 15px;
     -fx-text-fill: #E59700;
     -fx-font-weight: bold;
 }
 
 .chatUserF{
-    -fx-font-size: 18px;
+    -fx-font-size: 15px;
     -fx-text-fill: #52ab1b;
     -fx-font-weight: bold;
 }
 
 .chatTextNF{
-    -fx-font-size: 18px;
+    -fx-font-size: 15px;
     -fx-text-fill: #D3DAD9;
 }
 
 .chatTextF{
-    -fx-font-size: 18px;
+    -fx-font-size: 15px;
     -fx-text-fill: #b1fa84;
 }
 

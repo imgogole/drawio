@@ -45,7 +45,7 @@
                 <VBox spacing="5.0">
                     <Label text="ROOM IP ADDRESS" styleClass="input-label" />
                     <TextField fx:id="roomIPinput"
-                               promptText="192.168.1.X"
+                               promptText="localhost:5555"
                                styleClass="game-input"/>
                 </VBox>
             </VBox>

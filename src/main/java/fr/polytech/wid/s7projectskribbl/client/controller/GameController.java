@@ -569,22 +569,12 @@ public class GameController
     {
         Platform.runLater(() -> {
             HBox msgBox = new HBox();
-
             Label lblMsg = new Label(message);
             lblMsg.setWrapText(true);
-
-            // Sécurité : Si la couleur est null ou vide, on met du noir par défaut
             String finalColor = (color != null && !color.isEmpty()) ? color : "#000000";
-
-            // Application du style dynamique
-            // On force le gras (-fx-font-weight: bold) pour les messages serveur
             lblMsg.setStyle("-fx-text-fill: " + finalColor + "; -fx-font-weight: bold; -fx-font-size: 15px;");
-
             msgBox.getChildren().add(lblMsg);
             messagesContainer.getChildren().add(msgBox);
-
-            // Auto Scroll vers le bas
-            scrollPaneMessages.setVvalue(1.0);
         });
     }
 
@@ -1116,7 +1106,7 @@ public class GameController
 
             // 2. Mise à jour du texte
             if (lblDecisionWait != null) {
-                lblDecisionWait.setText(username + " est en train de choisir le mot...");
+                lblDecisionWait.setText(username + " is choosing the word...");
             }
 
             // 3. Affichage
