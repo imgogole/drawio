@@ -17,6 +17,7 @@ public class CFoundWord implements ClientAction
         ClientImage client = ClientHandler.Singleton().GetClientImage(payload.FinderId());
         client.SetFound(true);
 
+        GameController.Instance().UpdatePlayerList();
         if (GameController.Instance() != null)
         {
             GameController.Instance().AddServerMessageToChat(client.Username() + " guessed the word!", "#72f542");

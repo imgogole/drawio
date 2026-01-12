@@ -15,6 +15,7 @@ public class CNTDecision implements ClientAction
 
         ClientHandler.Singleton().SetDrawer(payload.DrawerID());
 
+        GameController.Instance().UpdatePlayerList();
         GameController.Instance().CloseEndRound(false);
         GameController.Instance().CloseDecisionPanel(false);
         GameController.Instance().SetRound(payload.Round(), GameCommonMetadata.TOTAL_ROUND);
