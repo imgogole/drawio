@@ -1,5 +1,3 @@
-# 🎨 Drawio - Multiplayer Drawing Game
-
 <div align="center">
   <img src="images/drawio.png" alt="Logo" width="200" height="200">
 
