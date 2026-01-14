@@ -1,137 +1,158 @@
 # 🎨 Drawio - Multiplayer Drawing Game
 
-```html
-<div align="center"> <img src="images/drawio.png" alt="Logo" width="200" height="200">
+<div align="center">
+  <img src="images/drawio.png" alt="Logo" width="200" height="200">
 
-<h1 align="center">Drawio</h1>
+  <h1 align="center">Drawio</h1>
 
-<p align="center"> <strong>Une réimplémentation moderne de Skribbl.io développée en Java 21 et JavaFX</strong> <br /> <br /> <a href="#-installation-et-lancement"><strong>Installation »</strong></a> · <a href="#-galerie--screenshots"><strong>Screenshots »</strong></a> · <a href="#-troubleshooting"><strong>Support »</strong></a> </p> </div>
-```
+  <p align="center">
+    <strong>A modern reimplementation of Skribbl.io developed in Java 21 and JavaFX</strong>
+    <br />
+    <br />
+    <a href="#-installation--setup"><strong>Installation »</strong></a>
+    ·
+    <a href="#-gallery--screenshots"><strong>Screenshots »</strong></a>
+    ·
+    <a href="#-troubleshooting"><strong>Support »</strong></a>
+  </p>
+</div>
 
-**Drawio** est une réimplémentation moderne du célèbre jeu de dessin et de devinettes "Skribbl.io", développée en **Java 21** avec **JavaFX**.
+**Drawio** is a modern clone of the famous drawing and guessing game "Skribbl.io", built with **Java 21** and **JavaFX**.
 
-Le jeu repose sur une architecture **Autorité serveur** robuste utilisant des sockets TCP, permettant des parties multijoueurs en temps réel avec synchronisation du dessin, tchat en direct et système de lobby.
-
----
-
-## ✨ Fonctionnalités
-
-* **🎨 Dessin en temps réel :** Outils pinceau, gomme, sélecteur de couleurs, et taille de trait ajustable. La synchronisation est fluide entre tous les clients.
-* **🕹️ Gameplay complet :**
-    * Système de **Lobby** (Waiting Room) avec statut "Prêt" et comptage des joueurs.
-    * Sélection d'avatar personnalisé depuis le disque dur via l'écran de connexion.
-    * Choix de mots parmi 3 propositions pour le dessinateur.
-    * Détection automatique des réponses dans le tchat.
-    * Timer de manche et calcul des scores dynamique.
-* **🏆 Fin de partie immersive :** Tableau des scores (Podium Or/Argent/Bronze) et animation de confettis pour le vainqueur.
-* **💬 Tchat intégré :** Discussion entre joueurs et annonces système (connexions, tours, victoires).
-* **🔊 Ambiance sonore :** Effets sonores pour les événements (victoire, défaite, temps écoulé, message).
+The game relies on a robust **Server-Authoritative** architecture using TCP sockets, enabling real-time multiplayer matches with drawing synchronization, live chat, and a lobby system.
 
 ---
 
-## 📸 Galerie & Screenshots
+## ✨ Features
 
-|            Connexion & Avatar             |             Lobby d'attente              |
-|:-----------------------------------------:|:----------------------------------------:|
-|   ![Connexion](images/join_screen.png)    |  ![Lobby](images/wait_for_players.png)   |
-| *Écran de connexion avec upload d'avatar* |      *Salle d'attente des joueurs*       |
-
-|           En Jeu (Dessin)            |           Fin de Partie           |
-|:------------------------------------:|:---------------------------------:|
-| ![In Game](images/guessing_word.png) | ![Game Over](images/end_game.png) |
-|               *En jeu*               |          *Fin de partie*          |
-
----
-
-## 🛠️ Stack Technique
-
-* **Langage :** Java 21
-* **Interface Graphique :** JavaFX 21 (FXML + CSS modulaire)
-* **Build System :** Gradle (Kotlin DSL)
-* **Réseau :** Sockets Java (TCP)
-* **Distribution :** Plugin `jlink` pour générer des exécutables autonomes légers.
+* **🎨 Real-time Drawing:** Brush, eraser, color picker, and adjustable stroke size. Synchronization is fluid across all clients.
+* **🕹️ Complete Gameplay:**
+    * **Lobby System** (Waiting Room) with "Ready" status and player counter.
+    * Custom avatar selection from the disk via the connection screen.
+    * Word selection (3 choices) for the drawer.
+    * Automatic answer detection in the chat.
+    * Round timer and dynamic score calculation.
+* **🏆 Immersive End Game:** Leaderboard (Gold/Silver/Bronze medals) and confetti animation for the winner.
+* **💬 Integrated Chat:** Discussion between players and system announcements (connections, turns, victories).
+* **🔊 Audio Atmosphere:** Sound effects for events (victory, defeat, time up, messages).
 
 ---
 
-## 🚀 Installation et Lancement
+## 📸 Gallery & Screenshots
 
-### Prérequis
-* Un système d'exploitation Windows, Linux ou macOS.
-* **(Optionnel)** JDK 21 installé si vous voulez développer, mais le build `jlink` inclut son propre runtime.
+### Connection & Avatar
+![Connection](images/join_screen.png)
+*Connection screen with custom avatar upload*
 
-### 1. Cloner le projet
-```bash
+<br>
+
+### Waiting Lobby
+![Lobby](images/wait_for_players.png)
+*Waiting room with player statuses*
+
+<br>
+
+### In-Game (Drawing & Guessing)
+![In Game](images/guessing_word.png)
+*Main game interface with drawing canvas and chat*
+
+<br>
+
+### Game Over
+![Game Over](images/end_game.png)
+*Final podium with results and confetti*
+
+---
+
+## 🛠️ Tech Stack
+
+* **Language:** Java 21
+* **GUI:** JavaFX 21 (FXML + Modular CSS)
+* **Build System:** Gradle (Kotlin DSL)
+* **Network:** Java Sockets (TCP)
+* **Distribution:** `jlink` plugin to generate lightweight standalone executables.
+
+---
+
+## 🚀 Installation & Setup
+
+### Prerequisites
+* Windows, Linux, or macOS.
+* **(Optional)** JDK 21 installed if you want to develop (the `jlink` build includes its own runtime).
+
+### 1. Clone the project
+@@@bash
 git clone [https://github.com/votre-compte/projects7-skribbl.git](https://github.com/votre-compte/projects7-skribbl.git)
 cd projects7-skribbl
-```
+@@@
 
-### 2. Compiler le projet (Génération des exécutables)
+### 2. Compile the project (Generate Executables)
 
-Le projet utilise **Gradle** avec le plugin **JLink** pour créer une version portable du client et du serveur.
+The project uses **Gradle** with the **JLink** plugin to create portable versions of the client and server.
 
-**Sur Windows (PowerShell) :**
+**On Windows (PowerShell):**
 ```powershell
 $env:JAVA_HOME="C:\Program Files\Java\jdk-21"; .\gradlew jlinkZip
 ```
 
-**Sur Linux / macOS :**
+**On Linux / macOS:**
 ```bash
 chmod +x gradlew
 JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew jlinkZip
 ```
 
-### 3. Lancer le Serveur et le Client
+### 3. Run Server and Client
 
-Une fois la compilation terminée, rendez-vous dans le dossier de distribution :
+Once the compilation is complete, go to the distribution folder:
 `build/distributions/`
 
-Décompressez le fichier `.zip`. Dans le dossier `bin` extrait, vous trouverez deux lanceurs :
+Unzip the `.zip` file. In the extracted `bin` folder, you will find two launchers:
 
-1.  **Lancer le Serveur :**
-    * Windows: Double-cliquez sur `SkribblServer.bat`
+1.  **Start the Server:**
+    * Windows: Double-click `SkribblServer.bat`
     * Linux/Mac: `./SkribblServer`
-2.  **Lancer le Client :**
-    * Windows: Double-cliquez sur `SkribblClient.bat`
+2.  **Start the Client:**
+    * Windows: Double-click `SkribblClient.bat`
     * Linux/Mac: `./SkribblClient`
 
 ---
 
-## 📂 Structure du Projet
+## 📂 Project Structure
 
 ```
 src/main/java/fr/polytech/wid/s7projectskribbl
-├── client               # Partie Client JavaFX
-│   ├── actions          # Logique de réception des paquets (Pattern Command)
-│   ├── controller       # Contrôleurs FXML (GameController, JoinRoom...)
-│   ├── network          # Gestion des Sockets Client
-│   ├── service          # Gestionnaires (SoundManager, PopupService...)
-│   └── Launcher.java    # Point d'entrée Client
-├── server               # Partie Serveur
-│   ├── client           # Gestion des clients connectés
-│   ├── room             # Logique de gestion de la partie (GameLoop)
-│   └── Main.java        # Point d'entrée Serveur
-└── common               # Code partagé (Payloads, Constantes)
+├── client               # Client Side (JavaFX)
+│   ├── actions          # Packet reception logic (Command Pattern)
+│   ├── controller       # FXML Controllers (GameController, JoinRoom...)
+│   ├── network          # Client Socket Management
+│   ├── service          # Managers (SoundManager, PopupService...)
+│   └── Launcher.java    # Client Entry Point
+├── server               # Server Side
+│   ├── client           # Connected Client Management
+│   ├── room             # Game Logic (GameLoop)
+│   └── Main.java        # Server Entry Point
+└── common               # Shared Code (Payloads, Constants)
 ```
 
 ---
 
 ## 🐛 Troubleshooting
 
-**Le jeu ne se lance pas sous Windows (SmartScreen) ?**
-Windows peut bloquer les fichiers `.bat` non signés.
-1. Clic droit sur le fichier ZIP généré -> **Propriétés**.
-2. Cocher **"Débloquer"** (Unblock) en bas.
-3. Appliquer, puis dézipper à nouveau.
+**Game doesn't start on Windows (SmartScreen)?**
+Windows might block unsigned `.bat` files.
+1.  Right-click the generated ZIP file -> **Properties**.
+2.  Check **"Unblock"** at the bottom.
+3.  Apply, then unzip again.
 
-**Problèmes de son sous Linux ?**
-Assurez-vous d'avoir les bibliothèques nécessaires :
-`sudo pacman -S ffmpeg gst-libav` (Arch) ou `sudo apt install libasound2 ffmpeg` (Ubuntu).
+**Sound issues on Linux?**
+Ensure you have the necessary libraries installed:
+`sudo pacman -S ffmpeg gst-libav` (Arch) or `sudo apt install libasound2 ffmpeg` (Ubuntu).
 
 ---
 
-## 👥 Auteurs
+## 👥 Authors
 
-Ce projet a été réalisé dans le cadre du cursus Polytech.
+This project was created as part of the Polytech curriculum.
 
 * **Dalil NAAMNA**
 * **Wassim HAMRIT**
